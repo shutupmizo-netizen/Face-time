@@ -1,31 +1,831 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PK LIVE BATTLE 🎤 - Support Streamers</title>
+    <title>PK LIVE BATTLE 🎤 - PRO</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0a0a; color: white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; text-align: center; padding: 15px; }
-     .container { max-width: 500px; margin: 0 auto; }
-     .hidden { display: none!important; }
-     .auth-box { background: #1a1a1a; padding: 30px; border-radius: 20px; margin-top: 50px; border: 2px solid #ff0055; }
-     .auth-input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #0a0a0a; color: white; font-size: 16px; }
-     .auth-btn { background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
-     .switch-auth { color: #00ff88; cursor: pointer; margin-top: 15px; display: block; }
-     .header { background: linear-gradient(135deg, #ff0055, #ff00ff); padding: 15px; border-radius: 15px; margin-bottom: 15px; }
-     .crown { font-size: 40px; animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-     .user-bar { background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-     .battle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-     .video-container { position: relative; }
-     .video-box { border-radius: 12px; overflow: hidden; border: 3px solid; box-shadow: 0 0 20px rgba(255,0,85,0.5); aspect-ratio: 9/16; background: #000; }
-     .boss-video { border-color: #ff0055; }
-     .enemy-video { border-color: #00aaff; }
+        body {
+            background: #000;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(255, 0, 85, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 136, 255, 0.2) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0a0a 0%, #000 100%);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            padding: 12px;
+            min-height: 100vh;
+        }
+        .container { max-width: 500px; margin: 0 auto; }
+        .hidden { display: none!important; }
+        .auth-box {
+            background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(20px);
+            padding: 35px 25px; border-radius: 24px; margin-top: 40px;
+            border: 1px solid rgba(255, 0, 85, 0.3); box-shadow: 0 8px 32px rgba(255, 0, 85, 0.3);
+            text-align: center;
+        }
+        .auth-input {
+            width: 100%; padding: 16px; margin: 12px 0; border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 10, 10, 0.6); color: white; font-size: 15px;
+            font-family: 'Poppins'; transition: 0.3s;
+        }
+        .auth-input:focus {
+            outline: none; border-color: #ff0055;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+        }
+        .auth-btn {
+            background: linear-gradient(135deg, #ff0055, #ff00ff);
+            border: none; color: white; padding: 16px; border-radius: 14px;
+            font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 12px;
+            font-family: 'Poppins'; box-shadow: 0 4px 20px rgba(255, 0, 85, 0.5);
+            transition: 0.3s;
+        }
+        .auth-btn:active { transform: scale(0.97); }
+        .switch-auth { color: #00ff88; cursor: pointer; margin-top: 18px; display: block; font-size: 14px; }
+        .header {
+            background: linear-gradient(135deg, #ff0055, #ff00ff);
+            padding: 22px; border-radius: 22px; margin-bottom: 18px; text-align: center;
+            box-shadow: 0 8px 32px rgba(255, 0, 85, 0.6);
+            position: relative; overflow: hidden;
+        }
+        .header::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); } 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
+        .crown { font-size: 50px; animation: float 2s ease-in-out infinite; filter: drop-shadow(0 0 15px rgba(255,215,0,1)); }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .header h1 { font-weight: 800; font-size: 26px; margin: 10px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .user-bar {
+            background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(15px);
+            padding: 14px 16px; border-radius: 18px; margin-bottom: 18px;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .user-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .user-pic {
+            width: 48px; height: 48px; border-radius: 50%; border: 2px solid #ff0055;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.6); object-fit: cover;
+        }
+        .user-stats { font-size: 11px; color: #888; }
+        .user-stats span { color: #FFD700; font-weight: 700; }
+        .live-list {
+            background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(15px);
+            padding: 20px; border-radius: 20px; margin: 18px 0;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+        .live-list h3 { font-weight: 700; font-size: 16px; margin-bottom: 14px; }
+        .live-user {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px; background: rgba(10, 10, 10, 0.7); border-radius: 16px;
+            margin: 12px 0; border-left: 3px solid red; transition: 0.3s;
+        }
+        .live-user:hover { background: rgba(255, 0, 0, 0.15); transform: translateX(3px); }
+        .live-user-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .live-user-pic {
+            width: 52px; height: 52px; border-radius: 50%; border: 2px solid red;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.7); object-fit: cover;
+        }
+        .live-badge-small {
+            background: linear-gradient(135deg, #ff0000, #ff0055);
+            color: white; padding: 4px 11px; border-radius: 12px;
+            font-size: 10px; font-weight: 700; animation: pulse 1.5s infinite;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .battle-area { position: relative; margin: 20px 0; }
+        .battle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .video-container { position: relative; }
+        .video-box {
+            border-radius: 20px; overflow: hidden; border: 3px solid;
+            box-shadow: 0 0 35px rgba(255,0,85,0.5); aspect-ratio: 9/16; background: #000;
+            transition: 0.3s;
+        }
+        .boss-video { border-color: #ff0055; box-shadow: 0 0 35px rgba(255,0,85,0.7); }
+        .enemy-video { border-color: #00aaff; box-shadow: 0 0 35px rgba(0,170,255,0.7); }
         video { width: 100%; height: 100%; object-fit: cover; }
-     .live-badge { background: red; color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; position: absolute; top: 8px; left: 8px; z-index: 10; animation: blink 1s infinite; }
-     .team-name { position: absolute; bottom: 8px; left: 0; right: 0; background: rgba(0,0,0,0.7); padding: 5px; font-weight: bold; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-     .vs-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #FFD700; color: black; padding: 8px 12px; border-radius: 50%; font-weight: bold; font-size: 18px; z-index: 20; border: 3px solid white; }
-     .stream-controls { background: #1a1a1a; padding
+        .live-badge {
+            background: linear-gradient(135deg, #ff0000, #ff0055); color: white;
+            padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700;
+            position: absolute; top: 12px; left: 12px; z-index: 10; animation: blink 1s infinite;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
+        }
+        .streamer-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 12px 0; gap: 15px;
+        }
+        .streamer-name-box {
+            flex: 1; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            padding: 12px; border-radius: 14px; text-align: center; cursor: pointer;
+            border: 2px solid; transition: 0.3s;
+        }
+        .streamer-name-box.boss { border-color: #ff0055; }
+        .streamer-name-box.enemy { border-color: #00aaff; }
+        .streamer-name-box:hover { transform: scale(1.05); }
+        .streamer-name-box b { font-size: 14px; display: block; }
+        .streamer-name-box small { font-size: 11px; color: #888; }
+        .vs-badge-center {
+            background: linear-gradient(135deg, #FFD700, #FFA500); color: black;
+            padding: 12px 16px; border-radius: 50%; font-weight: 800; font-size: 22px;
+            border: 4px solid white; box-shadow: 0 0 40px rgba(255, 215, 0, 0.9);
+            animation: rotate 4s linear infinite; flex-shrink: 0;
+        }
+        @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .effects-bar {
+            display: flex; gap: 8px; margin: 12px 0; overflow-x: auto;
+        }
+        .effect-btn {
+            background: rgba(51, 51, 51, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; padding: 8px 14px; border-radius: 10px; cursor: pointer;
+            font-size: 11px; font-family: 'Poppins'; font-weight: 600; white-space: nowrap; transition: 0.3s;
+        }
+        .effect-btn.active {
+            background: linear-gradient(135deg, #ff0055, #ff00ff);
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.5);
+        }
+        .stream-controls {
+            background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(15px);
+            padding: 20px; border-radius: 18px; margin: 18px 0; text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .control-btn {
+            background: rgba(51, 51, 51, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; padding: 13px 20px; border-radius: 14px; cursor: pointer;
+            margin: 6px; font-size: 13px; font-family: 'Poppins'; font-weight: 600; transition: 0.3s;
+        }
+        .control-btn:active { transform: scale(0.95); }
+        .control-btn.active {
+            background: linear-gradient(135deg, #00ff88, #00cc66); color: black;
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.6);
+        }
+        .control-btn.danger {
+            background: linear-gradient(135deg, #ff0055, #cc0044);
+            box-shadow: 0 0 25px rgba(255, 0, 85, 0.5);
+        }
+        .stats { display: flex; justify-content: space-around; margin: 20px 0; text-align: center; gap: 12px; }
+        .stat-box {
+            background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(15px);
+            padding: 18px; border-radius: 18px; flex: 1;
+            border: 1px solid rgba(0, 255, 136, 0.3); transition: 0.3s;
+        }
+        .stat-box:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4); }
+        .stat-number {
+            font-size: 32px; font-weight: 800; color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+        }
+        .stat-box div:last-child { font-size: 11px; opacity: 0.7; margin-top: 5px; }
+        .chat-container {
+            background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(15px);
+            border-radius: 20px; margin: 20px 0; border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 340px; display: flex; flex-direction: column;
+        }
+        .chat-header {
+            background: rgba(10, 10, 10, 0.9); padding: 16px; border-radius: 20px 20px 0 0;
+            font-weight: 700; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 15px;
+        }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 14px; text-align: left; }
+        .chat-msg {
+            margin: 12px 0; padding: 12px; background: rgba(10, 10, 10, 0.7);
+            border-radius: 14px; font-size: 13px; word-break: break-word;
+            display: flex; gap: 12px; align-items: start;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .chat-msg.owner {
+            border-left: 3px solid #FFD700;
+            background: rgba(255, 215, 0, 0.08);
+        }
+        .chat-pic { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; object-fit: cover; }
+        .chat-username { color: #00ff88; font-weight: 600; }
+        .chat-msg.owner .chat-username { color: #FFD700; }
+        .chat-input-box { display: flex; padding: 14px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .chat-input {
+            flex: 1; padding: 13px; border-radius: 14px 0 0 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 10, 10, 0.7); color: white; font-family: 'Poppins';
+        }
+        .chat-send {
+            background: linear-gradient(135deg, #ff0055, #ff00ff); border: none;
+            color: white; padding: 13px 20px; border-radius: 0 14px 14px 0;
+            cursor: pointer; font-weight: 700; font-family: 'Poppins';
+        }
+        .vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 24px 0; }
+        .vote-btn {
+            background: linear-gradient(135deg, #ff0055, #ff00ff); border: none;
+            color: white; padding: 24px; border-radius: 20px; font-size: 19px;
+            font-weight: 700; cursor: pointer; transition: 0.3s; font-family: 'Poppins';
+            box-shadow: 0 10px 35px rgba(255, 0, 85, 0.5);
+        }
+        .vote-btn.enemy {
+            background: linear-gradient(135deg, #0088ff, #00aaff);
+            box-shadow: 0 10px 35px rgba(0, 136, 255, 0.5);
+        }
+        .vote-btn:active { transform: scale(0.95); }
+        .coins {
+            background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(15px);
+            padding: 22px; border-radius: 20px; margin: 20px 0; text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        .coins h3 { font-weight: 700; font-size: 19px; }
+        .coins h3 span { color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
+        .free-btn {
+            background: linear-gradient(135deg, #00ff88, #00cc66); color: black;
+            border: none; padding: 15px 30px; border-radius: 25px; font-weight: 700;
+            cursor: pointer; margin-top: 14px; font-family: 'Poppins';
+            box-shadow: 0 5px 25px rgba(0, 255, 136, 0.5);
+        }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.96); backdrop-filter: blur(15px);
+            z-index: 1000; padding: 20px; overflow-y: auto;
+        }
+        .modal-content {
+            background: rgba(26, 26, 26, 0.95); backdrop-filter: blur(25px);
+            padding: 35px; border-radius: 26px; max-width: 440px; margin: 20px auto;
+            border: 2px solid #FFD700; box-shadow: 0 0 60px rgba(255, 215, 0, 0.5);
+        }
+        .profile-pic-large {
+            width: 120px; height: 120px; border-radius: 50%; border: 3px solid #ff0055;
+            box-shadow: 0 0 40px rgba(255, 0, 85, 0.7); object-fit: cover; margin: 0 auto 18px; display: block;
+        }
+        .profile-stats {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 25px 0; text-align: center;
+        }
+        .follow-btn {
+            background: linear-gradient(135deg, #ff0055, #ff00ff);
+            border: none; color: white; padding: 14px 30px; border-radius: 25px;
+            font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 18px;
+            font-family: 'Poppins'; box-shadow: 0 4px 20px rgba(255, 0, 85, 0.5);
+        }
+        .follow-btn.following {
+            background: rgba(51, 51, 51, 0.8);
+            box-shadow: none;
+        }
+        .input {
+            width: 100%; padding: 15px; margin: 12px 0; border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 10, 10, 0.6); color: white; font-size: 15px;
+            font-family: 'Poppins';
+        }
+        .points-badge {
+            background: linear-gradient(135deg, #00ff88, #00cc66); color: black;
+            padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+            display: inline-block; margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="authSection">
+        <div class="container">
+            <div class="auth-box">
+                <h1 style="font-size: 36px; margin-bottom: 12px;">🎤 PK BATTLE</h1>
+                <p style="opacity: 0.7; margin-bottom: 25px; font-size: 14px;">Login or Sign Up</p>
+
+                <div id="loginForm">
+                    <input class="auth-input" id="loginUser" placeholder="Username" autocomplete="off">
+                    <input class="auth-input" id="loginPass" type="password" placeholder="Password" autocomplete="off">
+                    <button class="auth-btn" onclick="login()">🔓 LOGIN</button>
+                    <span class="switch-auth" onclick="showSignup()">Don't have account? Sign Up</span>
+                </div>
+
+                <div id="signupForm" class="hidden">
+                    <input class="auth-input" id="signupUser" placeholder="Choose Username" autocomplete="off">
+                    <input class="auth-input" id="signupPass" type="password" placeholder="Choose Password" autocomplete="off">
+                    <button class="auth-btn" onclick="signup()">✨ CREATE ACCOUNT</button>
+                    <span class="switch-auth" onclick="showLogin()">Already have account? Login</span>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <label style="font-size: 12px; opacity: 0.8; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="agreeTerms" style="width: 18px; height: 18px; cursor: pointer;">
+                        <span>I agree to Terms of Service & Privacy Policy</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="appSection" class="hidden">
+        <div class="container">
+            <div class="header">
+                <div class="crown">👑</div>
+                <h1>PK LIVE BATTLE</h1>
+                <div style="font-size: 13px; opacity: 0.9; margin-top: 8px;">🔴 <span id="onlineCount">0</span> Online</div>
+            </div>
+
+            <div class="user-bar">
+                <div class="user-info" onclick="viewProfile(currentUser)">
+                    <img class="user-pic" id="myUserPic" src="https://i.imgur.com/8Km9tLL.png">
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;" id="myUsername">User</div>
+                        <div class="user-stats">
+                            ⭐ <span id="myPointsDisplay">0</span> Points
+                        </div>
+                    </div>
+                <button class="auth-btn" onclick="logout()" style="width:auto; padding:10px 18px; margin:0; font-size:13px;">Logout</button>
+            </div>
+
+            <div class="live-list" id="liveList">
+                <h3>🔴 LIVE STREAMERS</h3>
+                <div id="liveUsers"></div>
+            </div>
+
+            <div class="stream-controls">
+                <button class="control-btn" id="startBtn" onclick="startStream()">📹 Start Stream</button>
+                <button class="control-btn danger hidden" id="stopBtn" onclick="stopStream()">🛑 Stop Stream</button>
+                <button class="control-btn" id="camBtn" onclick="toggleCam()">📷 Camera</button>
+                <button class="control-btn" id="micBtn" onclick="toggleMic()">🎤 Mic</button>
+            </div>
+
+            <div class="effects-bar">
+                <button class="effect-btn active" onclick="setEffect('none')">Normal</button>
+                <button class="effect-btn" onclick="setEffect('blur')">Blur</button>
+                <button class="effect-btn" onclick="setEffect('sepia')">Sepia</button>
+                <button class="effect-btn" onclick="setEffect('bw')">B&W</button>
+                <button class="effect-btn" onclick="setEffect('bright')">Bright</button>
+            </div>
+
+            <div class="streamer-bar">
+                <div class="streamer-name-box boss" onclick="viewProfile(document.getElementById('bossName').textContent)">
+                    <b id="bossName">Boss</b>
+                    <small>⭐ <span id="bossPoints">0</span></small>
+                </div>
+                <div class="vs-badge-center">VS</div>
+                <div class="streamer-name-box enemy" onclick="viewProfile(document.getElementById('enemyName').textContent)">
+                    <b id="enemyName">Enemy</b>
+                    <small>⭐ <span id="enemyPoints">0</span></small>
+                </div>
+            </div>
+
+            <div class="battle-area">
+                <div class="battle-grid">
+                    <div class="video-container">
+                        <div class="video-box boss-video">
+                            <div class="live-badge">🔴 LIVE</div>
+                            <video id="localVideo" autoplay muted playsinline style="display:none;"></video>
+                            <div id="localPlaceholder" style="height:100%;display:flex;align-items:center;justify-content:center;background:#1a1a1a;color:#666;font-size:13px;">You</div>
+                        </div>
+                    </div>
+                    <div class="video-container">
+                        <div class="video-box enemy-video">
+                            <div class="live-badge">🔴 LIVE</div>
+                            <video id="remoteVideo" autoplay playsinline style="display:none;"></video>
+                            <div id="remotePlaceholder" style="height:100%;display:flex;align-items:center;justify-content:center;background:#1a1a1a;color:#666;font-size:13px;">Waiting...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="totalVotes">0</div>
+                    <div>Total Gifts</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="onlineCountStat">0</div>
+                    <div>Online</div>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-header">💬 LIVE CHAT</div>
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input-box">
+                    <input class="chat-input" id="chatInput" placeholder="Type message..." maxlength="200">
+                    <button class="chat-send" onclick="sendChat()">Send</button>
+                </div>
+            </div>
+
+            <div class="vote-grid">
+                <button class="vote-btn" onclick="vote('boss', document.getElementById('bossName').textContent)">❤️ Send Gift<br><small id="bossTotal" style="font-size: 13px; opacity: 0.9;">0 Gifts</small></button>
+                <button class="vote-btn enemy" onclick="vote('enemy', document.getElementById('enemyName').textContent)">❤️ Send Gift<br><small id="enemyTotal" style="font-size: 13px; opacity: 0.9;">0 Gifts</small></button>
+            </div>
+
+            <div style="background: rgba(255,0,85,0.1); backdrop-filter: blur(15px); padding: 20px; border-radius: 20px; margin: 20px 0; border: 2px solid rgba(255,0,85,0.4); text-align: center;">
+                <h3 style="font-weight: 800; margin-bottom: 12px;">⚔️ PK BATTLE ARENA</h3>
+                <p style="font-size: 12px; opacity: 0.8; margin-bottom: 15px;">Fee: 20 Coins | Winner: 35 Coins</p>
+
+                <div id="pkStatus" style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 14px; margin-bottom: 15px; min-height: 60px;">
+                    <p style="font-size: 13px; color: #888;">PK la awm lo. Challenge rawh!</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="auth-btn" onclick="startPK('boss')" style="background: linear-gradient(135deg, #ff0055, #cc0044);">⚔️ Challenge as BOSS<br><small style="font-size: 11px;">20 Coins Fee</small></button>
+                    <button class="auth-btn" onclick="startPK('enemy')" style="background: linear-gradient(135deg, #0088ff, #0066cc);">⚔️ Challenge as ENEMY<br><small style="font-size: 11px;">20 Coins Fee</small></button>
+                </div>
+
+                <div id="pkVoteButtons" style="display:none; margin-top: 15px;">
+                    <p style="font-size: 12px; margin-bottom: 10px;">💰 PK Pot: <span id="pkPot" style="color: #FFD700; font-weight: 700;">0</span> Coins</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="vote-btn" onclick="pkVote('boss')" style="padding: 18px;">❤️ BOSS<br><small id="pkBossVotes">0</small></button>
+                        <button class="vote-btn enemy" onclick="pkVote('enemy')" style="padding: 18px;">❤️ ENEMY<br><small id="pkEnemyVotes">0</small></button>
+                    </div>
+                    <button class="control-btn danger" onclick="endPK()" style="width: 100%; margin-top: 10px;">🏁 END PK & Declare Winner</button>
+                </div>
+            </div>
+
+            <div class="coins">
+                <h3>💰 Your Gift Coins: <span id="myCoins">0</span></h3>
+                <button class="free-btn" onclick="getFreeCoins()">🎁 FREE 500 Coins (5min)</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <img class="profile-pic-large" id="profilePicLarge" src="https://i.imgur.com/8Km9tLL.png">
+            <h2 id="profileUsername" style="font-weight: 800; margin: 10px 0;">Username</h2>
+            <p id="profileBio" style="color: #aaa; margin: 12px 0; font-size: 14px;">Bio</p>
+
+            <div style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
+                <div class="points-badge" style="background: linear-gradient(135deg, #FFD700, #FFA500);">
+                    💰 <span id="profileCoins">0</span> Coins
+                </div>
+                <div class="points-badge">
+                    ⭐ <span id="profilePoints">0</span> Points
+                </div>
+            </div>
+
+            <div class="profile-stats">
+                <div>
+                    <div class="stat-number" id="profileFollowers" style="font-size: 36px;">0</div>
+                    <div style="font-size: 12px; opacity: 0.7;">Followers</div>
+                </div>
+                <div>
+                    <div class="stat-number" id="profileFollowing" style="font-size: 36px;">0</div>
+                    <div style="font-size: 12px; opacity: 0.7;">Following</div>
+                </div>
+            </div>
+
+            <div id="redeemDiv" style="display:none; margin: 20px 0; padding: 15px; background: rgba(0,255,136,0.1); border-radius: 14px; border: 1px solid rgba(0,255,136,0.3);">
+                <h4 style="margin-bottom: 10px; color: #00ff88;">🔄 Redeem Points</h4>
+                <p style="font-size: 12px; opacity: 0.8; margin-bottom: 12px;">100 Points = 60 Coins</p>
+                <input class="input" id="redeemAmount" type="number" placeholder="Points zat (100, 200, 300...)" min="100" step="100">
+                <button class="auth-btn" onclick="redeemPoints()" style="background: linear-gradient(135deg, #00ff88, #00cc66); color: black; margin-top: 10px;">💎 Redeem to Coins</button>
+            </div>
+
+            <button class="follow-btn" id="followBtn" onclick="toggleFollow()">+ Follow</button>
+            <div id="editProfileDiv" style="display:none; margin-top: 20px;">
+                <input class="input" id="editBio" placeholder="Bio (100 chars max)" maxlength="100">
+                <input class="input" id="editPic" placeholder="Profile Pic URL">
+                <button class="auth-btn" onclick="updateProfile()">💾 Save Profile</button>
+            </div>
+            <button class="auth-btn" onclick="closeProfile()" style="background: rgba(51,51,51,0.8); margin-top: 12px;">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let sessionId = localStorage.getItem('pk_session');
+        let currentUser = null;
+        let myCoins = 0;
+        let myPoints = 0;
+        let isOwner = false;
+        let localStream = null;
+        let viewingProfile = null;
+        let pkActive = false;
+
+        if(sessionId) {
+            socket.emit('verify_session', {session_id: sessionId});
+        }
+
+        socket.on('auth_success', (data) => {
+            sessionId = data.session_id;
+            currentUser = data.username;
+            myCoins = data.coins;
+            myPoints = data.points;
+            isOwner = data.is_owner;
+            localStorage.setItem('pk_session', sessionId);
+
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElement            if(isOwner) {
+                document.getElementById('bossName').textContent = currentUser;
+                document.getElementById('bossPoints').textContent = myPoints;
+            }
+
+            socket.emit('get_profile', {session_id: sessionId, username: currentUser});
+        });
+
+        socket.on('profile_data', (data) => {
+            if(data.username === currentUser) {
+                document.getElementById('myUserPic').src = data.profile_pic;
+            }
+
+            if(document.getElementById('profileModal').style.display === 'block') {
+                document.getElementById('profileUsername').textContent = data.username;
+                document.getElementById('profileBio').textContent = data.bio;
+                document.getElementById('profilePicLarge').src = data.profile_pic;
+                document.getElementById('profileCoins').textContent = data.coins;
+                document.getElementById('profilePoints').textContent = data.points;
+                document.getElementById('profileFollowers').textContent = data.followers;
+                document.getElementById('profileFollowing').textContent = data.following;
+
+                const followBtn = document.getElementById('followBtn');
+                if(data.is_self) {
+                    followBtn.style.display = 'none';
+                    document.getElementById('editProfileDiv').style.display = 'block';
+                    document.getElementById('redeemDiv').style.display = 'block';
+                    document.getElementById('editBio').value = data.bio;
+                    document.getElementById('editPic').value = data.profile_pic;
+                } else {
+                    followBtn.style.display = 'block';
+                    followBtn.textContent = data.is_following? '✓ Following' : '+ Follow';
+                    followBtn.className = data.is_following? 'follow-btn following' : 'follow-btn';
+                    document.getElementById('editProfileDiv').style.display = 'none';
+                    document.getElementById('redeemDiv').style.display = 'none';
+                }
+            }
+        });
+
+        socket.on('profile_updated', (data) => {
+            myPoints = data.points;
+            document.getElementById('myPointsDisplay').textContent = myPoints;
+            document.getElementById('myUserPic').src = data.profile_pic;
+            if(isOwner) {
+                document.getElementById('bossPoints').textContent = myPoints;
+            }
+            alert('✅ Profile updated!');
+        });
+
+        socket.on('update_coins', (data) => {
+            myCoins = data.coins;
+            document.getElementById('myCoins').textContent = myCoins;
+            document.getElementById('profileCoins').textContent = myCoins;
+        });
+
+        socket.on('update_points', (data) => {
+            myPoints = data.points;
+            document.getElementById('myPointsDisplay').textContent = myPoints;
+            document.getElementById('profilePoints').textContent = myPoints;
+            if(isOwner) {
+                document.getElementById('bossPoints').textContent = myPoints;
+            }
+        });
+
+        socket.on('points_update', (data) => {
+            if(data.username === document.getElementById('bossName').textContent) {
+                document.getElementById('bossPoints').textContent = data.points;
+            } else if(data.username === document.getElementById('enemyName').textContent) {
+                document.getElementById('enemyPoints').textContent = data.points;
+            }
+        });
+
+        socket.on('update_live_streamers', (streamers) => {
+            const liveUsers = document.getElementById('liveUsers');
+            if(streamers.length === 0) {
+                liveUsers.innerHTML = '<div style="text-align:center;padding:25px;color:#666;font-size:13px;">No live streams yet</div>';
+                return;
+            }
+            liveUsers.innerHTML = streamers.map(s => `
+                <div class="live-user">
+                    <div class="live-user-info" onclick="viewProfile('${s.username}')">
+                        <img class="live-user-pic" src="${s.profile_pic}">
+                        <div>
+                            <div style="font-weight:600;font-size:14px;">${s.username}</div>
+                            <div style="font-size:11px;color:#888;margin-top:2px;">${s.bio}</div>
+                        </div>
+                    <div class="live-badge-small">LIVE</div>
+                </div>
+            `).join('');
+        });
+
+        socket.on('update_votes', (votes) => {
+            document.getElementById('totalVotes').textContent = votes;
+        });
+
+        socket.on('online_count', (count) => {
+            document.getElementById('onlineCount').textContent = count;
+            document.getElementById('onlineCountStat').textContent = count;
+        });
+
+        socket.on('new_chat', (data) => {
+            const chatMessages = document.getElementById('chatMessages');
+            const msg = document.createElement('div');
+            msg.className = data.is_owner? 'chat-msg owner' : 'chat-msg';
+            msg.innerHTML = `
+                <img class="chat-pic" src="${data.profile_pic}" onclick="viewProfile('${data.username}')" style="cursor:pointer;">
+                <div>
+                    <span class="chat-username">${data.username}:</span> ${data.message}
+                </div>
+            `;
+            chatMessages.appendChild(msg);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+
+        socket.on('pk_waiting', (data) => {
+            document.getElementById('pkStatus').innerHTML = `<p style="color: #FFD700; font-weight: 600;">${data.msg}</p>`;
+        });
+
+        socket.on('pk_start', (data) => {
+            pkActive = true;
+            document.getElementById('pkStatus').innerHTML = `
+                <p style="color: #00ff88; font-weight: 700; font-size: 15px;">🔥 ${data.msg}</p>
+                <p style="font-size: 12px; margin-top: 8px;">Pot: ${data.pot} Coins</p>
+            `;
+            document.getElementById('pkVoteButtons').style.display = 'block';
+            document.getElementById('pkPot').textContent = data.pot;
+        });
+
+        socket.on('pk_vote_update', (data) => {
+            document.getElementById('pkBossVotes').textContent = data.votes.boss;
+            document.getElementById('pkEnemyVotes').textContent = data.votes.enemy;
+            document.getElementById('pkPot').textContent = data.pot;
+        });
+
+        socket.on('pk_result', (data) => {
+            pkActive = false;
+            document.getElementById('pkStatus').innerHTML = `<p style="color: #FFD700; font-weight: 700; font-size: 16px;">${data.msg}</p>`;
+            document.getElementById('pkVoteButtons').style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('pkStatus').innerHTML = '<p style="font-size: 13px; color: #888;">PK la awm lo. Challenge rawh!</p>';
+            }, 5000);
+        });
+
+        socket.on('success', (data) => {
+            alert(data.msg);
+        });
+
+        socket.on('error', (data) => {
+            alert('❌ ' + data.msg);
+        });
+
+        function showSignup() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        function signup() {
+            if(!document.getElementById('agreeTerms').checked) {
+                alert('⚠️ Terms of Service i pawm a ngai');
+                return;
+            }
+            const user = document.getElementById('signupUser').value.trim();
+            const pass = document.getElementById('signupPass').value;
+            if(user && pass) {
+                socket.emit('signup', {username: user, password: pass});
+            }
+        }
+
+        function login() {
+            if(!document.getElementById('agreeTerms').checked) {
+                alert('⚠️ Terms of Service i pawm a ngai');
+                return;
+            }
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            if(user && pass) {
+                socket.emit('login', {username: user, password: pass});
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('pk_session');
+            location.reload();
+        }
+
+        function viewProfile(username) {
+            viewingProfile = username;
+            socket.emit('get_profile', {session_id: sessionId, username: username});
+            document.getElementById('profileModal').style.display = 'block';
+        }
+
+        function closeProfile() {
+            document.getElementById('profileModal').style.display = 'none';
+            viewingProfile = null;
+        }
+
+        function toggleFollow() {
+            if(viewingProfile && viewingProfile!== currentUser) {
+                socket.emit('toggle_follow', {session_id: sessionId, target: viewingProfile});
+            }
+        }
+
+        function updateProfile() {
+            const bio = document.getElementById('editBio').value;
+            const pic = document.getElementById('editPic').value;
+            socket.emit('update_profile', {session_id: sessionId, bio: bio, pic: pic});
+        }
+
+        function redeemPoints() {
+            const amount = parseInt(document.getElementById('redeemAmount').value);
+            if(amount >= 100 && amount % 100 === 0) {
+                socket.emit('redeem_points', {session_id: sessionId, points: amount});
+                document.getElementById('redeemAmount').value = '';
+            } else {
+                alert('❌ 100, 200, 300... tih ang in redeem rawh');
+            }
+        }
+
+        async function startStream() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+                document.getElementById('localVideo').srcObject = localStream;
+                document.getElementById('localVideo').style.display = 'block';
+                document.getElementById('localPlaceholder').style.display = 'none';
+                document.getElementById('startBtn').classList.add('hidden');
+                document.getElementById('stopBtn').classList.remove('hidden');
+                socket.emit('start_stream', {session_id: sessionId});
+            } catch(err) {
+                alert('Camera/Mic permission pe rawh: ' + err.message);
+            }
+        }
+
+        function stopStream() {
+            if(localStream) {
+                localStream.getTracks().forEach(t => t.stop());
+                localStream = null;
+            }
+            document.getElementById('localVideo').style.display = 'none';
+            document.getElementById('localPlaceholder').style.display = 'flex';
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            socket.emit('stop_stream', {session_id: sessionId});
+        }
+
+        function toggleCam() {
+            if(localStream) {
+                const vt = localStream.getVideoTracks()[0];
+                vt.enabled =!vt.enabled;
+                document.getElementById('camBtn').classList.toggle('active', vt.enabled);
+            }
+        }
+
+        function toggleMic() {
+            if(localStream) {
+                const at = localStream.getAudioTracks()[0];
+                at.enabled =!at.enabled;
+                document.getElementById('micBtn').classList.toggle('active', at.enabled);
+            }
+        }
+
+        function setEffect(effect) {
+            const video = document.getElementById('localVideo');
+            const filters = {
+                'none': 'none',
+                'blur': 'blur(3px)',
+                'sepia': 'sepia(1)',
+                'bw': 'grayscale(1)',
+                'bright': 'brightness(1.3)'
+            };
+            video.style.filter = filters[effect];
+            document.querySelectorAll('.effect-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function vote(team, target) {
+            if(myCoins < 10) {
+                alert('❌ 10 Coins tal nei rawh!');
+                return;
+            }
+            socket.emit('vote', {session_id: sessionId, team: team, target: target});
+        }
+
+        function getFreeCoins() {
+            socket.emit('get_free_coins', {session_id: sessionId});
+        }
+
+        function startPK(team) {
+            if(myCoins < 20) {
+                alert('❌ PK Fee 20 Coins i nei lo!');
+                return;
+            }
+            socket.emit('start_pk', {session_id: sessionId, team: team});
+        }
+
+        function pkVote(team) {
+            if(myCoins < 10) {
+                alert('❌ 10 Coins tal nei rawh!');
+                return;
+            }
+            socket.emit('pk_vote', {session_id: sessionId, team: team});
+        }
+
+        function endPK() {
+            socket.emit('end_pk', {session_id: sessionId});
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if(msg) {
+                socket.emit('chat_message', {session_id: sessionId, message: msg});
+                input.value = '';
+            }
+        }
+
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendChat();
+        });
+    </script>
+</body>
+</html>
