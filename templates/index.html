@@ -1,186 +1,438 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BOSS PK Live Server</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial; background: #0a0a0a; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
- .container { background: linear-gradient(145deg, #1a1a1a, #0f0f0f); padding: 30px 25px; border-radius: 30px; text-align: center; box-shadow: 0 20px 60px rgba(255,0,80,0.3); border: 2px solid #ff0050; max-width: 420px; width: 100%; }
- .server-status { background: #25D366; color: white; padding: 5px 12px; border-radius: 10px; font-size: 11px; margin-bottom: 10px; display: inline-block; }
- .owner-badge { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; padding: 6px 15px; border-radius: 15px; font-size: 11px; font-weight: bold; display: none; margin-bottom: 10px; }
- .owner-badge.show { display: inline-block; }
- .coin-bar { background: #000; border: 2px solid #FFD700; border-radius: 15px; padding: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
- .coin-balance { color: #FFD700; font-size: 18px; font-weight: bold; }
- .free-coin-btn { background: #FFD700; color: #000; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px; }
- .free-coin-btn:disabled { opacity: 0.5; }
- .avatar { width: 80px; height: 80px; background: linear-gradient(135deg, #ff0050, #8b5cf6); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 35px; border: 3px solid #ff0050; }
-    h1 { color: white; font-size: 28px; margin-bottom: 5px; }
- .tag { color: #ff0050; font-size: 12px; margin-bottom: 15px; font-weight: bold; }
- .vote-box { background: #000; padding: 18px; border-radius: 20px; margin: 15px 0; border: 1px solid #333; }
- .vote-title { color: #ff0050; font-size: 15px; margin-bottom: 12px; font-weight: bold; }
- .vote-cost { color: #FFD700; font-size: 12px; margin-bottom: 12px; }
- .vote-btns { display: flex; gap: 10px; }
- .vote-btn { flex: 1; background: #1a1a1a; border: 2px solid #ff0050; color: white; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
- .vote-btn:active { transform: scale(0.95); }
- .vote-btn:disabled { opacity: 0.3; }
- .vote-count { font-size: 22px; display: block; margin-bottom: 3px; }
- .btn { display: block; width: 100%; padding: 14px; margin: 8px 0; border-radius: 15px; text-decoration: none; font-size: 16px; font-weight: bold; transition: transform 0.2s; border: none; cursor: pointer; }
- .btn:active { transform: scale(0.95); }
- .wa { background: #25D366; color: white; }
- .support { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
- .admin { background: linear-gradient(135deg, #8b5cf6, #ff0050); color: white; display: none; }
- .admin.show { display: block; }
- .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; }
- .stat { color: #888; font-size: 11px; }
- .stat b { display: block; color: #ff0050; font-size: 16px; }
- .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 999; padding: 20px; }
- .modal-content { background: #1a1a1a; padding: 25px; border-radius: 20px; border: 2px solid #FFD700; text-align: center; max-width: 350px; width: 100%; }
- .input-group { margin: 15px 0; text-align: left; }
- .input-group label { color: #FFD700; font-size: 13px; display: block; margin-bottom: 5px; }
- .input-group input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #333; background: #000; color: white; font-size: 16px; }
- .close { background: #ff0050; color: white; border: none; padding: 10px 25px; border-radius: 10px; font-size: 15px; margin-top: 12px; cursor: pointer; width: 100%; }
- .admin-btn { background: #FFD700; color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: bold; margin: 8px 0; cursor: pointer; width: 100%; }
-  </style>
+    <title>BOSS PK LIVE BATTLE 🔥</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: #0a0a0a; color: white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            text-align: center; padding: 15px; 
+        }
+        .container { max-width: 500px; margin: 0 auto; }
+        .hidden { display: none !important; }
+        
+        /* AUTH PAGES */
+        .auth-box { 
+            background: #1a1a1a; padding: 30px; border-radius: 20px; 
+            margin-top: 50px; border: 2px solid #ff0055;
+        }
+        .auth-input { 
+            width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; 
+            border: 1px solid #333; background: #0a0a0a; color: white; font-size: 16px;
+        }
+        .auth-btn { 
+            background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white; 
+            padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; 
+            cursor: pointer; width: 100%; margin-top: 10px;
+        }
+        .switch-auth { color: #00ff88; cursor: pointer; margin-top: 15px; display: block; }
+        
+        /* MAIN APP */
+        .header { background: linear-gradient(135deg, #ff0055, #ff00ff); padding: 15px; border-radius: 15px; margin-bottom: 15px; }
+        .crown { font-size: 40px; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .user-bar { 
+            background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        
+        .video-box { 
+            margin: 15px 0; border-radius: 12px; overflow: hidden; 
+            border: 3px solid #ff0055; box-shadow: 0 0 20px rgba(255,0,85,0.5); position: relative;
+        }
+        .live-badge { 
+            background: red; color: white; padding: 5px 12px; border-radius: 20px; 
+            font-size: 12px; font-weight: bold; position: absolute; top: 10px; left: 10px; z-index: 10;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .audio-controls { 
+            background: #1a1a1a; padding: 10px; border-radius: 10px; margin: 10px 0;
+            display: flex; justify-content: center; gap: 10px; align-items: center;
+        }
+        .audio-btn { 
+            background: #333; border: none; color: white; padding: 8px 15px; 
+            border-radius: 8px; cursor: pointer;
+        }
+        
+        .stats { display: flex; justify-content: space-around; margin: 15px 0; }
+        .stat-box { background: #1a1a1a; padding: 10px 15px; border-radius: 10px; flex: 1; margin: 0 5px; }
+        .stat-number { font-size: 24px; font-weight: bold; color: #00ff88; }
+        
+        .vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+        .vote-btn { 
+            background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white; 
+            padding: 20px; border-radius: 12px; font-size: 18px; font-weight: bold; 
+            cursor: pointer; transition: 0.2s;
+        }
+        .vote-btn:active { transform: scale(0.95); }
+        
+        .coins { background: #1a1a1a; padding: 15px; border-radius: 12px; margin: 15px 0; }
+        .free-btn { 
+            background: #00ff88; color: black; border: none; padding: 12px 25px; 
+            border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+        .buy-coins { 
+            background: #FFD700; color: black; border: none; padding: 12px 25px; 
+            border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%;
+        }
+        
+        .owner-panel { 
+            display: none; background: #1a1a1a; padding: 20px; border-radius: 12px; 
+            margin-top: 20px; border: 2px solid #ff0055;
+        }
+        .input { 
+            width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; 
+            border: 1px solid #333; background: #0a0a0a; color: white;
+        }
+        .status { font-size: 12px; color: #00ff88; margin: 10px 0; }
+        .logout-btn { background: #ff0055; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        
+        /* PAYMENT MODAL */
+        .modal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.9); z-index: 1000; padding: 20px;
+        }
+        .modal-content { 
+            background: #1a1a1a; padding: 25px; border-radius: 15px; 
+            max-width: 400px; margin: 50px auto; border: 2px solid #FFD700;
+        }
+        .upi-id { 
+            background: #0a0a0a; padding: 15px; border-radius: 10px; 
+            font-size: 18px; font-weight: bold; color: #00ff88; margin: 15px 0;
+            word-break: break-all;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="server-status" id="serverStatus">🟢 Server Connected</div>
-    <div class="owner-badge" id="ownerBadge">👑 OWNER MODE</div>
-    <div class="coin-bar">
-      <div class="coin-balance">🪙 <span id="coinBalance">0</span> Coins</div>
-      <button class="free-coin-btn" onclick="getFreeCoins()" id="freeBtn">+50 FREE</button>
+    <div class="container">
+        
+        <!-- SIGN UP PAGE -->
+        <div id="signupPage">
+            <div class="auth-box">
+                <div class="crown">👑</div>
+                <h1>SIGN UP</h1>
+                <p style="margin: 15px 0; color: #888;">Account siam la, Battle tan rawh!</p>
+                <input class="auth-input" id="signupUsername" placeholder="Username" maxlength="15">
+                <input class="auth-input" id="signupPassword" type="password" placeholder="Password">
+                <button class="auth-btn" onclick="signup()">🚀 SIGN UP FREE</button>
+                <span class="switch-auth" onclick="showLogin()">Account i nei tawh em? Login</span>
+            </div>
+        </div>
+
+        <!-- LOGIN PAGE -->
+        <div id="loginPage" class="hidden">
+            <div class="auth-box">
+                <div class="crown">👑</div>
+                <h1>LOGIN</h1>
+                <p style="margin: 15px 0; color: #888;">Lo kir leh lawmawm</p>
+                <input class="auth-input" id="loginUsername" placeholder="Username">
+                <input class="auth-input" id="loginPassword" type="password" placeholder="Password">
+                <button class="auth-btn" onclick="login()">🔓 LOGIN</button>
+                <span class="switch-auth" onclick="showSignup()">Account i la nei lo em? Sign Up</span>
+            </div>
+        </div>
+
+        <!-- MAIN APP -->
+        <div id="mainApp" class="hidden">
+            <div class="user-bar">
+                <div>👤 <b id="displayName">Guest</b></div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="header">
+                <div class="crown">👑</div>
+                <h1>BOSS PK LIVE</h1>
+                <p>Tunge chak zawk? Vote rawh!</p>
+            </div>
+
+            <!-- LIVE VIDEO -->
+            <div style="position: relative;">
+                <div class="live-badge">🔴 LIVE</div>
+                <div class="video-box">
+                    <iframe 
+                        id="liveFrame"
+                        width="100%" 
+                        height="250" 
+                        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1" 
+                        frameborder="0" 
+                        allow="autoplay; encrypted-media" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+
+            <!-- AUDIO CONTROLS -->
+            <div class="audio-controls">
+                <button class="audio-btn" onclick="toggleMute()" id="muteBtn">🔊 Unmute</button>
+                <span style="font-size: 12px; color: #888;">Live Audio</span>
+            </div>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="bossVotes">0</div>
+                    <div>BOSS 🔥</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="enemyVotes">0</div>
+                    <div>ENEMY 💀</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="onlineUsers">0</div>
+                    <div>ONLINE</div>
+                </div>
+            </div>
+
+            <div class="status" id="serverStatus">⏳ Connecting...</div>
+
+            <div class="vote-grid">
+                <button class="vote-btn" onclick="vote('boss')">BOSS 🔥<br><small id="bossTotal">0 Votes</small></button>
+                <button class="vote-btn" onclick="vote('enemy')">ENEMY 💀<br><small id="enemyTotal">0 Votes</small></button>
+            </div>
+
+            <div class="coins">
+                <h3>💰 I Coins: <span id="myCoins">0</span></h3>
+                <p style="font-size: 12px; margin: 5px 0;">Vote 1 = 10 Coins</p>
+                <button class="free-btn" id="freeBtn" onclick="getFreeCoins()">🎁 +50 FREE COINS</button>
+                <button class="buy-coins" onclick="showPayment()">💳 BUY COINS - UPI</button>
+            </div>
+
+            <button onclick="shareWA()" style="background: #25D366; color: white; border: none; padding: 15px; border-radius: 25px; width: 100%; font-weight: bold; margin-top: 10px;">📱 SHARE WHATSAPP</button>
+
+            <!-- OWNER PANEL -->
+            <div class="owner-panel" id="ownerPanel">
+                <h2>👑 OWNER PANEL</h2>
+                <input class="input" id="videoIdInput" placeholder="YouTube Video ID">
+                <button class="vote-btn" onclick="updateVideo()" style="width: 100%; margin: 5px 0;">📹 Update Live Video</button>
+                <hr style="margin: 15px 0; border: 1px solid #333;">
+                <input class="input" id="coinUserId" placeholder="Username">
+                <input class="input" id="coinAmount" placeholder="Coin zat" type="number">
+                <button class="vote-btn" onclick="addCoins()" style="width: 100%; margin: 5px 0;">💰 Pe Coins</button>
+                <button class="vote-btn" onclick="declareWinner('boss')" style="width: 100%; margin: 5px 0; background: gold; color: black;">🏆 BOSS WINS</button>
+                <button class="vote-btn" onclick="declareWinner('enemy')" style="width: 100%; margin: 5px 0; background: #666;">💀 ENEMY WINS</button>
+                <button class="vote-btn" onclick="resetVotes()" style="width: 100%; margin: 5px 0; background: #ff0055;">🔄 Reset Votes</button>
+            </div>
+        </div>
+
+        <!-- PAYMENT MODAL -->
+        <div id="paymentModal" class="modal">
+            <div class="modal-content">
+                <h2>💳 BUY COINS</h2>
+                <p style="margin: 15px 0;">UPI ID ah hian pawisa thawn rawh:</p>
+                <div class="upi-id" id="upiId">8798407843@nyes</div>
+                <button class="auth-btn" onclick="copyUPI()">📋 Copy UPI ID</button>
+                <p style="font-size: 12px; margin: 15px 0; color: #888;">
+                    100 Coins = ₹50<br>
+                    500 Coins = ₹200<br>
+                    1000 Coins = ₹350
+                </p>
+                <p style="font-size: 11px; color: #ff0055;">Thawn zawh ah WhatsApp: 918798407843 ah screenshot thawn la, coins ka lo pe ang che</p>
+                <button class="auth-btn" style="background: #666; margin-top: 15px;" onclick="closePayment()">Close</button>
+            </div>
+        </div>
     </div>
-    <div class="avatar">👑</div>
-    <h1>BOSS</h1>
-    <div class="tag">LIVE SERVER | REAL-TIME</div>
-    <div class="vote-box">
-      <div class="vote-title">👊 TUNGE CHAK ANG?</div>
-      <div class="vote-cost">Vote 1 = 10 Coins</div>
-      <div class="vote-btns">
-        <button class="vote-btn" onclick="vote('boss')">
-          <span class="vote-count" id="bossCount">0</span>
-          BOSS 🔥
-        </button>
-        <button class="vote-btn" onclick="vote('enemy')">
-          <span class="vote-count" id="enemyCount">0</span>
-          ENEMY 💀
-        </button>
-      </div>
-    <button onclick="showSupport()" class="btn support">🎁 Buy Coins</button>
-    <button onclick="showAdmin()" class="btn admin" id="adminBtn">⚙️ Owner Panel</button>
-    <a href="https://wa.me/918798407843" class="btn wa">📱 WhatsApp</a>
-    <div class="stats">
-      <div class="stat"><b id="totalVotes">0</b>Total Votes</div>
-      <div class="stat"><b id="myVotes">0</b>My Votes</div>
-      <div class="stat"><b id="onlineUsers">1</b>Online</div>
-    </div>
-  </div>
-  <div class="modal" id="adminModal">
-    <div class="modal-content">
-      <h2 style="color:#FFD700; margin-bottom:15px;">⚙️ Owner Panel</h2>
-      <div class="input-group">
-        <label>User ID</label>
-        <input type="text" id="userId" placeholder="ex: fan123">
-      </div>
-      <div class="input-group">
-        <label>Coins Pek Tur</label>
-        <input type="number" id="coinAmount" value="1000">
-      </div>
-      <button class="admin-btn" onclick="addCoins()">🪙 Coins Pe Ang</button>
-      <button class="close" onclick="hideAdmin()">Close</button>
-    </div>
-  </div>
-  <script>
-    const API = window.location.origin;
-    let userId = localStorage.getItem('userId') || 'user_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('userId', userId);
+
+<script>
+    const socket = io();
+    let currentUser = localStorage.getItem('pk_username') || null;
+    let myCoins = parseInt(localStorage.getItem('pk_coins') || 0);
+    let usedFree = localStorage.getItem('pk_used_free') === 'true';
     let isOwner = false;
-    let freeCoinsUsed = localStorage.getItem('freeCoinsUsed') === 'true';
-    if(freeCoinsUsed) {
-      document.getElementById('freeBtn').disabled = true;
-      document.getElementById('freeBtn').textContent = 'Used ✓';
+    let isMuted = true;
+
+    // Check if logged in
+    if(currentUser) {
+        showMainApp();
+    } else {
+        showSignup();
     }
-    let keySequence = [];
-    document.addEventListener('keydown', (e) => {
-      keySequence.push(e.key.toLowerCase());
-      if(keySequence.slice(-4).join('') === 'boss') {
-        let pass = prompt('Owner Password:');
-        if(pass === 'boss2026') enableOwnerMode();
-      }
-      if(keySequence.length > 10) keySequence.shift();
+
+    function showSignup() {
+        document.getElementById('signupPage').classList.remove('hidden');
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('mainApp').classList.add('hidden');
+    }
+
+    function showLogin() {
+        document.getElementById('signupPage').classList.add('hidden');
+        document.getElementById('loginPage').classList.remove('hidden');
+        document.getElementById('mainApp').classList.add('hidden');
+    }
+
+    function signup() {
+        const username = document.getElementById('signupUsername').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        if(!username || !password) return alert('Username leh Password fill rawh');
+        if(username.length < 3) return alert('Username a tawi lutuk. 3+ character');
+        if(password.length < 4) return alert('Password a tawi lutuk. 4+ character');
+        
+        localStorage.setItem('pk_user_' + username, password);
+        currentUser = username;
+        localStorage.setItem('pk_username', username);
+        
+        // Give 50 free coins on signup
+        myCoins = 50;
+        localStorage.setItem('pk_coins', myCoins);
+        localStorage.setItem('pk_used_free', 'true');
+        usedFree = true;
+        
+        alert('🎉 Account siam a ni! 50 FREE COINS i hmu e');
+        showMainApp();
+    }
+
+    function login() {
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const savedPass = localStorage.getItem('pk_user_' + username);
+        
+        if(!savedPass) return alert('Account a awm lo. Sign Up phawt rawh');
+        if(savedPass !== password) return alert('Password a dik lo');
+        
+        currentUser = username;
+        localStorage.setItem('pk_username', username);
+        
+        // Owner check
+        if(username.toLowerCase() === 'boss' && password === 'boss2026') {
+            isOwner = true;
+            localStorage.setItem('pk_is_owner', 'true');
+        }
+        
+        showMainApp();
+    }
+
+    function showMainApp() {
+        document.getElementById('signupPage').classList.add('hidden');
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        document.getElementById('displayName').textContent = currentUser;
+        document.getElementById('myCoins').textContent = myCoins;
+        if(usedFree) document.getElementById('freeBtn').style.display = 'none';
+        
+        if(localStorage.getItem('pk_is_owner') === 'true' || currentUser.toLowerCase() === 'boss') {
+            isOwner = true;
+            document.getElementById('ownerPanel').style.display = 'block';
+        }
+        
+        socket.emit('join', {userId: currentUser});
+    }
+
+    function logout() {
+        localStorage.removeItem('pk_username');
+        localStorage.removeItem('pk_is_owner');
+        location.reload();
+    }
+
+    function toggleMute() {
+        const iframe = document.getElementById('liveFrame');
+        const currentSrc = iframe.src;
+        if(isMuted) {
+            iframe.src = currentSrc.replace('mute=1', 'mute=0');
+            document.getElementById('muteBtn').textContent = '🔇 Mute';
+            isMuted = false;
+        } else {
+            iframe.src = currentSrc.replace('mute=0', 'mute=1');
+            document.getElementById('muteBtn').textContent = '🔊 Unmute';
+            isMuted = true;
+        }
+    }
+
+    function showPayment() {
+        document.getElementById('paymentModal').style.display = 'block';
+    }
+
+    function closePayment() {
+        document.getElementById('paymentModal').style.display = 'none';
+    }
+
+    function copyUPI() {
+        const upiText = '8798407843@nyes';
+        navigator.clipboard.writeText(upiText);
+        alert('✅ UPI ID Copy a ni: ' + upiText);
+    }
+
+    socket.on('connect', () => {
+        document.getElementById('serverStatus').textContent = '✅ Server Connected';
+        if(currentUser) socket.emit('join', {userId: currentUser});
     });
-    function enableOwnerMode() {
-      isOwner = true;
-      document.getElementById('ownerBadge').classList.add('show');
-      document.getElementById('adminBtn').classList.add('show');
-      alert('👑 Owner Mode ON');
+
+    socket.on('disconnect', () => {
+        document.getElementById('serverStatus').textContent = '❌ Server Offline';
+    });
+
+    socket.on('update', (data) => {
+        document.getElementById('bossVotes').textContent = data.boss;
+        document.getElementById('enemyVotes').textContent = data.enemy;
+        document.getElementById('bossTotal').textContent = data.boss + ' Votes';
+        document.getElementById('enemyTotal').textContent = data.enemy + ' Votes';
+        document.getElementById('onlineUsers').textContent = data.online;
+        if(data.videoId) {
+            const muteParam = isMuted ? 'mute=1' : 'mute=0';
+            document.getElementById('liveFrame').src = `https://www.youtube.com/embed/${data.videoId}?autoplay=1&${muteParam}`;
+        }
+    });
+
+    function vote(team) {
+        if(myCoins < 10) {
+            alert('Coins a tlem! Free coins la la emaw lei rawh');
+            showPayment();
+            return;
+        }
+        myCoins -= 10;
+        localStorage.setItem('pk_coins', myCoins);
+        document.getElementById('myCoins').textContent = myCoins;
+        socket.emit('vote', {team: team, userId: currentUser});
     }
-    async function loadData() {
-      try {
-        const res = await fetch(`${API}/api/data?user_id=${userId}`);
-        const data = await res.json();
-        document.getElementById('coinBalance').textContent = data.coins;
-        document.getElementById('bossCount').textContent = data.votes.boss;
-        document.getElementById('enemyCount').textContent = data.votes.enemy;
-        document.getElementById('totalVotes').textContent = data.votes.boss + data.votes.enemy;
-        document.getElementById('myVotes').textContent = data.my_votes;
-        document.getElementById('serverStatus').style.background = '#25D366';
-        document.querySelectorAll('.vote-btn').forEach(btn => {
-          btn.disabled = data.coins < 10;
-        });
-      } catch(e) {
-        document.getElementById('serverStatus').style.background = '#ff0050';
-        document.getElementById('serverStatus').textContent = '🔴 Server Offline';
-      }
+
+    function getFreeCoins() {
+        if(usedFree) return;
+        myCoins += 50;
+        usedFree = true;
+        localStorage.setItem('pk_coins', myCoins);
+        localStorage.setItem('pk_used_free', 'true');
+        document.getElementById('myCoins').textContent = myCoins;
+        document.getElementById('freeBtn').style.display = 'none';
+        alert('🎁 50 Free Coins i hmu!');
     }
-    async function vote(team) {
-      const res = await fetch(`${API}/api/vote`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({user_id: userId, team: team})
-      });
-      if(res.ok) loadData();
-      else alert('Coin a zo!');
+
+    function shareWA() {
+        const text = `🔥 BOSS PK LIVE BATTLE 🔥\n\nTunge chak zawk? Vote rawh 👊\nSign Up la, FREE COIN 50 hmu nghal\n\n👇 CLICK HERE 👇\n${window.location.href}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
-    async function getFreeCoins() {
-      if(freeCoinsUsed) return;
-      await fetch(`${API}/api/free_coins`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({user_id: userId})
-      });
-      freeCoinsUsed = true;
-      localStorage.setItem('freeCoinsUsed', 'true');
-      document.getElementById('freeBtn').disabled = true;
-      document.getElementById('freeBtn').textContent = 'Used ✓';
-      loadData();
-      alert('🪙 50 Coins i hmu e!');
+
+    function updateVideo() {
+        const videoId = document.getElementById('videoIdInput').value.trim();
+        if(!videoId) return alert('Video ID dah rawh');
+        socket.emit('owner_update_video', {videoId: videoId, password: 'boss2026'});
+        alert('✅ Video Updated!');
     }
-    async function addCoins() {
-      const targetUser = document.getElementById('userId').value;
-      const amount = document.getElementById('coinAmount').value;
-      const pass = prompt('Owner Password:');
-      const res = await fetch(`${API}/api/owner/add_coins`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({user_id: targetUser, amount: amount, password: pass})
-      });
-      if(res.ok) {
-        alert(`✅ ${targetUser} hnenah ${amount} coins pek a ni e`);
-        document.getElementById('userId').value = '';
-      } else {
-        alert('❌ Password dik lo');
-      }
+
+    function addCoins() {
+        const userId = document.getElementById('coinUserId').value;
+        const amount = document.getElementById('coinAmount').value;
+        socket.emit('owner_add_coins', {userId, amount: parseInt(amount), password: 'boss2026'});
+        alert('✅ Coins pek a ni');
     }
-    function showSupport() {
-      window.open('https://wa.me/918798407843?text=Coin%20lei%20ka%20duh%20UserID:%20' + userId, '_blank');
+
+    function declareWinner(team) {
+        socket.emit('owner_declare_winner', {team, password: 'boss2026'});
+        alert(`🏆 ${team.toUpperCase()} WINS!`);
     }
-    function showAdmin() { document.getElementById('adminModal').style.display = 'flex'; }
-    function hideAdmin() { document.getElementById('adminModal').style.display = 'none'; }
-    loadData();
-    setInterval(loadData, 3000);
-  </script>
+
+    function resetVotes() {
+        socket.emit('owner_reset', {password: 'boss2026'});
+        alert('🔄 Votes Reset!');
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if(event.target == document.getElementById('paymentModal')) {
+            closePayment();
+        }
+    }
+</script>
 </body>
 </html>
