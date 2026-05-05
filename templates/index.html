@@ -65,6 +65,8 @@
      .checkbox-label { display: flex; align-items: flex-start; font-size: 12px; margin: 15px 0; text-align: left; }
      .checkbox-label input { margin-right: 10px; margin-top: 2px; width: 18px; height: 18px; flex-shrink: 0; }
     </style>
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
     <div class="container">
@@ -107,6 +109,7 @@
                 <button class="auth-btn" onclick="signup()">🚀 SIGN UP FREE / INZIAT LUT</button>
                 <span class="switch-auth" onclick="showLogin()">Account i nei tawh em? Login / Already have account?</span>
             </div>
+        </div>
         <div id="loginPage" class="hidden">
             <div class="auth-box">
                 <div class="crown">👑</div>
@@ -116,7 +119,6 @@
                 <button class="auth-btn" onclick="login()">🔓 LOGIN / LUT RAWH</button>
                 <span class="switch-auth" onclick="showSignup()">Account i la nei lo em? Sign Up / New user?</span>
             </div>
-        </div>
         <div id="mainApp" class="hidden">
             <div class="user-bar">
                 <div>👤 <b id="displayName">Guest</b></div>
@@ -174,6 +176,7 @@
                     <input class="chat-input" id="chatInput" placeholder="Message type rawh... / Type message..." maxlength="200" onkeypress="if(event.key==='Enter')sendChat()">
                     <button class="chat-send" onclick="sendChat()">SEND</button>
                 </div>
+            </div>
             <div class="status" id="serverStatus">⏳ Connecting...</div>
             <div class="vote-grid">
                 <button class="vote-btn" onclick="vote('boss')">BOSS 🔥<br><small id="bossTotal">0 Votes</small></button>
@@ -184,6 +187,19 @@
                 <p style="font-size: 12px; margin: 5px 0;">Vote 1 = 10 Coins</p>
                 <button class="free-btn" id="freeBtn" onclick="getFreeCoins()">🎁 +500 FREE COINS</button>
                 <button class="buy-coins" onclick="showPayment()">💳 BUY COINS - UPI</button>
+                
+                <!-- Razorpay Payment Buttons -->
+                <div style="margin-top:15px;">
+                    <button onclick="buyCoins(50, 50)" style="padding:12px; margin:5px; background:#3399cc; color:white; border:none; border-radius:8px; font-size:14px; width:100%; cursor:pointer;">
+                        ₹50 → 50 Coins ⚡ Instant
+                    </button>
+                    <button onclick="buyCoins(100, 100)" style="padding:12px; margin:5px; background:#3399cc; color:white; border:none; border-radius:8px; font-size:14px; width:100%; cursor:pointer;">
+                        ₹100 → 100 Coins ⚡ Instant
+                    </button>
+                    <button onclick="buyCoins(500, 500)" style="padding:12px; margin:5px; background:#ff6b00; color:white; border:none; border-radius:8px; font-size:14px; width:100%; cursor:pointer;">
+                        ₹500 → 500 Coins 🔥 Instant
+                    </button>
+                </div>
             </div>
             <button onclick="shareWA()" style="background: #25D366; color: white; border: none; padding: 15px; border-radius: 25px; width: 100%; font-weight: bold; margin-top: 10px;">📱 SHARE WHATSAPP</button>
             <div class="owner-panel" id="ownerPanel">
@@ -198,6 +214,7 @@
                 <button class="vote-btn enemy" onclick="declareWinner('enemy')" style="width: 100%; margin: 5px 0;">💀 ENEMY WINS</button>
                 <button class="vote-btn" onclick="resetVotes()" style="width: 100%; margin: 5px 0; background: #ff0055;">🔄 Reset Votes</button>
             </div>
+        </div>
         <div id="paymentModal" class="modal">
             <div class="modal-content">
                 <h2>💳 BUY COINS / COINS LEI RAWH</h2>
@@ -255,7 +272,6 @@
         document.getElementById('displayName').textContent = currentUser;
         document.getElementById('myCoins').textContent = myCoins;
         if(isOwner) { document.getElementById('ownerPanel').style.display = 'block'; }
-        socket.emit('join', {});
     });
     socket.on('auth_error', (data) => { alert('❌ ' + data.msg); });
     function logout() {
@@ -263,6 +279,7 @@
         if(localStream) { localStream.getTracks().forEach(track => track.stop()); }
         location.reload();
     }
+    
     async function requestPermissions() {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' }, audio: true });
@@ -270,79 +287,62 @@
             document.getElementById('streamBtn').style.display = 'inline-block';
             alert('✅ Camera & Mic permission pek a ni e. GO LIVE hmet la / Camera & Mic allowed. Click GO LIVE');
         } catch(err) {
-            alert('❌ Camera/Mic permission i pek loh chuan live theih loh.\nBrowser settings → Site Settings → Camera/Microphone → Allow');
+            alert('❌ Camera/Mic permission i pek loh chuan live theih loh.\nBrowser settings → Site Settings → Camera');
             console.error(err);
         }
     }
+    
     function toggleStream() {
         if(!isStreaming) {
             isStreaming = true;
-            document.getElementById('streamBtn').textContent = '🔴 LIVE VEK';
+            document.getElementById('streamBtn').textContent = '🔴 LIVE MEK';
             document.getElementById('streamBtn').classList.add('active');
             document.getElementById('stopStreamBtn').style.display = 'inline-block';
             document.getElementById('bossLiveBadge').style.display = 'block';
             socket.emit('start_stream', {session_id: sessionId, team: 'boss'});
         }
     }
+    
     function stopStream() {
         isStreaming = false;
         document.getElementById('streamBtn').textContent = '🔴 GO LIVE';
-        document.getElementById('streamBtn').classList.remove('active');<!-- 1. Razorpay Checkout Script - Hei hi <head> ah dah rawh -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-<!-- 2. Payment Buttons - I duhna apiang ah dah rawh -->
-<div style="text-align:center; margin:20px;">
-  <h3>💎 PK Live Battle Coins 💎</h3>
-  
-  <button onclick="buyCoins(50, 50)" style="padding:15px; margin:5px; background:#3399cc; color:white; border:none; border-radius:8px; font-size:16px; width:200px;">
-    ₹50 → 50 Coins
-  </button><br>
-  
-  <button onclick="buyCoins(100, 100)" style="padding:15px; margin:5px; background:#3399cc; color:white; border:none; border-radius:8px; font-size:16px; width:200px;">
-    ₹100 → 100 Coins
-  </button><br>
-  
-  <button onclick="buyCoins(500, 500)" style="padding:15px; margin:5px; background:#ff6b00; color:white; border:none; border-radius:8px; font-size:16px; width:200px;">
-    ₹500 → 500 Coins 🔥
-  </button>
-</div>
-
-<!-- 3. Payment Function - Hei hi </body> hma ah dah rawh -->
-<script>
-function buyCoins(rupees, coins) {
-  var options = {
-    "key": "rzp_test_SlINvXCQLOy7sE", // I Key ID ✅
-    "amount": rupees * 100, // ₹50 = 5000 paise
-    "currency": "INR",
-    "name": "PK Live Battle",
-    "description": coins + " Coins Purchase",
-    "image": "https://pklivebattle.com/logo.png", // I logo url dah la
-    "handler": function (response){
-        alert("Payment Success! ✅\nPayment ID: " + response.razorpay_payment_id + "\n" + coins + " Coins i account ah a lut e!");
-        
-        // Helai ah i database ah coins pek belhna code dah tur
-        console.log("Payment Success:", response);
-        
-        // Example: addCoinsToUser(coins, response.razorpay_payment_id);
-    },
-    "prefill": {
-        "name": "PK Player",
-        "email": "player@example.com",
-        "contact": "9999999999"
-    },
-    "theme": {
-        "color": "#3399cc"
-    }
-  };
-  var rzp = new Razorpay(options);
-  
-  rzp.on('payment.failed', function (response){
-        alert("Payment Failed 😭\nError: " + response.error.description);
-        console.log(response.error);
-  });
-  
-  rzp.open();
-}
-</script>
+        document.getElementById('streamBtn').classList.remove('active');
         document.getElementById('stopStreamBtn').style.display = 'none';
-        document.getElementBy
+        document.getElementById('bossLiveBadge').style.display = 'none';
+        socket.emit('stop_stream', {session_id: sessionId, team: 'boss'});
+    }
+
+    // Razorpay Payment Function
+    function buyCoins(rupees, coins) {
+        var options = {
+            "key": "rzp_test_SlINvXCQLOy7sE",
+            "amount": rupees * 100,
+            "currency": "INR",
+            "name": "PK Live Battle",
+            "description": coins + " Coins Purchase",
+            "image": "https://pklivebattle.com/logo.png",
+            "handler": function (response){
+                alert("Payment Success! ✅\nPayment ID: " + response.razorpay_payment_id + "\n" + coins + " Coins i account ah a lut e!");
+                socket.emit('add_coins_after_payment', {
+                    session_id: sessionId, 
+                    coins: coins, 
+                    payment_id: response.razorpay_payment_id
+                });
+            },
+            "prefill": {
+                "name": currentUser || "PK Player",
+                "email": "player@pklivebattle.com"
+            },
+            "theme": {
+                "color": "#3399cc"
+            }
+        };
+        var rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response){
+            alert("Payment Failed 😭\nError: " + response.error.description);
+        });
+        rzp.open();
+    }
+</script>
+</body>
+</html>
