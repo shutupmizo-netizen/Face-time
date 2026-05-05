@@ -7,129 +7,202 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
+        body {
             background: #0a0a0a; color: white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            text-align: center; padding: 15px; 
+            text-align: center; padding: 15px;
         }
-        .container { max-width: 500px; margin: 0 auto; }
-        .hidden { display: none !important; }
-        
-        /* AUTH PAGES */
-        .auth-box { 
-            background: #1a1a1a; padding: 30px; border-radius: 20px; 
+       .container { max-width: 500px; margin: 0 auto; }
+       .hidden { display: none!important; }
+
+       .auth-box {
+            background: #1a1a1a; padding: 30px; border-radius: 20px;
             margin-top: 50px; border: 2px solid #ff0055;
         }
-        .auth-input { 
-            width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; 
+       .auth-input {
+            width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px;
             border: 1px solid #333; background: #0a0a0a; color: white; font-size: 16px;
         }
-        .auth-btn { 
-            background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white; 
-            padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; 
+       .auth-btn {
+            background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white;
+            padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold;
             cursor: pointer; width: 100%; margin-top: 10px;
         }
-        .switch-auth { color: #00ff88; cursor: pointer; margin-top: 15px; display: block; }
-        
-        /* MAIN APP */
-        .header { background: linear-gradient(135deg, #ff0055, #ff00ff); padding: 15px; border-radius: 15px; margin-bottom: 15px; }
-        .crown { font-size: 40px; animation: pulse 1s infinite; }
+       .switch-auth { color: #00ff88; cursor: pointer; margin-top: 15px; display: block; }
+
+       .header { background: linear-gradient(135deg, #ff0055, #ff00ff); padding: 15px; border-radius: 15px; margin-bottom: 15px; }
+       .crown { font-size: 40px; animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .user-bar { 
-            background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; 
+       .user-bar {
+            background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px;
             display: flex; justify-content: space-between; align-items: center;
         }
-        
-        .video-box { 
-            margin: 15px 0; border-radius: 12px; overflow: hidden; 
-            border: 3px solid #ff0055; box-shadow: 0 0 20px rgba(255,0,85,0.5); position: relative;
+
+       .battle-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;
         }
-        .live-badge { 
-            background: red; color: white; padding: 5px 12px; border-radius: 20px; 
-            font-size: 12px; font-weight: bold; position: absolute; top: 10px; left: 10px; z-index: 10;
+       .video-container { position: relative; }
+       .video-box {
+            border-radius: 12px; overflow: hidden; border: 3px solid;
+            box-shadow: 0 0 20px rgba(255,0,85,0.5); aspect-ratio: 9/16; background: #000;
+        }
+       .boss-video { border-color: #ff0055; }
+       .enemy-video { border-color: #00aaff; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+       .live-badge {
+            background: red; color: white; padding: 4px 10px; border-radius: 20px;
+            font-size: 10px; font-weight: bold; position: absolute; top: 8px; left: 8px; z-index: 10;
             animation: blink 1s infinite;
         }
+       .team-name {
+            position: absolute; bottom: 8px; left: 0; right: 0;
+            background: rgba(0,0,0,0.7); padding: 5px; font-weight: bold;
+        }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        
-        .audio-controls { 
-            background: #1a1a1a; padding: 10px; border-radius: 10px; margin: 10px 0;
-            display: flex; justify-content: center; gap: 10px; align-items: center;
+
+       .vs-badge {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #FFD700; color: black; padding: 8px 12px; border-radius: 50%;
+            font-weight: bold; font-size: 18px; z-index: 20; border: 3px solid white;
         }
-        .audio-btn { 
-            background: #333; border: none; color: white; padding: 8px 15px; 
-            border-radius: 8px; cursor: pointer;
+
+       .stream-controls {
+            background: #1a1a1a; padding: 15px; border-radius: 10px; margin: 15px 0;
         }
-        
-        .stats { display: flex; justify-content: space-around; margin: 15px 0; }
-        .stat-box { background: #1a1a1a; padding: 10px 15px; border-radius: 10px; flex: 1; margin: 0 5px; }
-        .stat-number { font-size: 24px; font-weight: bold; color: #00ff88; }
-        
-        .vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .vote-btn { 
-            background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white; 
-            padding: 20px; border-radius: 12px; font-size: 18px; font-weight: bold; 
-            cursor: pointer; transition: 0.2s;
+       .control-btn {
+            background: #333; border: none; color: white; padding: 10px 15px;
+            border-radius: 8px; cursor: pointer; margin: 5px; font-size: 13px;
         }
-        .vote-btn:active { transform: scale(0.95); }
-        
-        .coins { background: #1a1a1a; padding: 15px; border-radius: 12px; margin: 15px 0; }
-        .free-btn { 
-            background: #00ff88; color: black; border: none; padding: 12px 25px; 
-            border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px;
+       .control-btn.active { background: #00ff88; color: black; }
+       .control-btn.danger { background: #ff0055; }
+
+        /* CHAT BOX */
+       .chat-container {
+            background: #1a1a1a; border-radius: 12px; margin: 15px 0;
+            border: 2px solid #333; height: 300px; display: flex; flex-direction: column;
         }
-        .buy-coins { 
-            background: #FFD700; color: black; border: none; padding: 12px 25px; 
-            border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%;
+       .chat-header {
+            background: #0a0a0a; padding: 10px; border-radius: 10px 10px 0 0;
+            font-weight: bold; border-bottom: 1px solid #333;
         }
-        
-        .owner-panel { 
-            display: none; background: #1a1a1a; padding: 20px; border-radius: 12px; 
-            margin-top: 20px; border: 2px solid #ff0055;
+       .chat-messages {
+            flex: 1; overflow-y: auto; padding: 10px; text-align: left;
         }
-        .input { 
-            width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; 
+       .chat-msg {
+            margin: 8px 0; padding: 8px; background: #0a0a0a; border-radius: 8px;
+            font-size: 13px; word-break: break-word;
+        }
+       .chat-msg.owner { border-left: 3px solid #FFD700; }
+       .chat-msg.username { color: #00ff88; font-weight: bold; }
+       .chat-msg.owner.username { color: #FFD700; }
+       .chat-input-box {
+            display: flex; padding: 10px; border-top: 1px solid #333;
+        }
+       .chat-input {
+            flex: 1; padding: 10px; border-radius: 8px 0 0 8px;
             border: 1px solid #333; background: #0a0a0a; color: white;
         }
-        .status { font-size: 12px; color: #00ff88; margin: 10px 0; }
-        .logout-btn { background: #ff0055; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
-        
-        /* PAYMENT MODAL */
-        .modal { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.9); z-index: 1000; padding: 20px;
+       .chat-send {
+            background: #ff0055; border: none; color: white; padding: 10px 15px;
+            border-radius: 0 8px 8px 0; cursor: pointer; font-weight: bold;
         }
-        .modal-content { 
-            background: #1a1a1a; padding: 25px; border-radius: 15px; 
-            max-width: 400px; margin: 50px auto; border: 2px solid #FFD700;
+
+       .stats { display: flex; justify-content: space-around; margin: 15px 0; }
+       .stat-box { background: #1a1a1a; padding: 10px 15px; border-radius: 10px; flex: 1; margin: 0 5px; }
+       .stat-number { font-size: 24px; font-weight: bold; color: #00ff88; }
+
+       .vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+       .vote-btn {
+            background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white;
+            padding: 20px; border-radius: 12px; font-size: 18px; font-weight: bold;
+            cursor: pointer; transition: 0.2s;
         }
-        .upi-id { 
-            background: #0a0a0a; padding: 15px; border-radius: 10px; 
+       .vote-btn.enemy { background: linear-gradient(135deg, #0088ff, #00aaff); }
+       .vote-btn:active { transform: scale(0.95); }
+
+       .coins { background: #1a1a1a; padding: 15px; border-radius: 12px; margin: 15px 0; }
+       .free-btn {
+            background: #00ff88; color: black; border: none; padding: 12px 25px;
+            border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+       .buy-coins {
+            background: #FFD700; color: black; border: none; padding: 12px 25px;
+            border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%;
+        }
+
+       .owner-panel {
+            display: none; background: #1a1a1a; padding: 20px; border-radius: 12px;
+            margin-top: 20px; border: 2px solid #ff0055;
+        }
+       .input {
+            width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px;
+            border: 1px solid #333; background: #0a0a0a; color: white;
+        }
+       .status { font-size: 12px; color: #00ff88; margin: 10px 0; }
+       .logout-btn { background: #ff0055; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+
+       .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 1000; padding: 20px; overflow-y: auto;
+        }
+       .modal-content {
+            background: #1a1a1a; padding: 25px; border-radius: 15px;
+            max-width: 400px; margin: 20px auto; border: 2px solid #FFD700;
+        }
+       .upi-id {
+            background: #0a0a0a; padding: 15px; border-radius: 10px;
             font-size: 18px; font-weight: bold; color: #00ff88; margin: 15px 0;
             word-break: break-all;
         }
+       .payment-item {
+            background: #0a0a0a; padding: 12px; margin: 8px 0; border-radius: 8px;
+            border-left: 3px solid #FFD700; text-align: left;
+        }
+       .terms-box {
+            text-align: left; font-size: 11px; color: #888; margin: 15px 0;
+            max-height: 150px; overflow-y: auto; padding: 10px; background: #0a0a0a; border-radius: 8px;
+        }
+       .checkbox-label {
+            display: flex; align-items: center; font-size: 12px; margin: 15px 0; text-align: left;
+        }
+       .checkbox-label input { margin-right: 10px; width: 18px; height: 18px; }
     </style>
 </head>
 <body>
     <div class="container">
-        
-        <!-- SIGN UP PAGE -->
+
         <div id="signupPage">
             <div class="auth-box">
                 <div class="crown">👑</div>
                 <h1>SIGN UP</h1>
-                <p style="margin: 15px 0; color: #888;">Account siam la, Battle tan rawh!</p>
                 <input class="auth-input" id="signupUsername" placeholder="Username" maxlength="15">
                 <input class="auth-input" id="signupPassword" type="password" placeholder="Password">
+
+                <div class="terms-box">
+                    <b>TERMS & CONDITIONS / DAN LEH DUN</b><br><br>
+                    1. Kum 18+ chauh in he app hi an hmang thei.<br>
+                    2. I camera leh microphone kan access ang. I phalna tel lo in record/publish theih a ni lo.<br>
+                    3. Mi zah lohna, mipat hmeichhiatna lam, ruihhlo, pawikhawihna stream phal loh.<br>
+                    4. I video/audio te chu live chauh a ni. I duh loh chuan stop thei reng.<br>
+                    5. I account hack/ban a nih chuan coins refund theih loh.<br>
+                    6. UPI payment dik lo submit chuan account ban theih.<br>
+                    7. He app hi entertainment chauh. Pawisa i hloh pawhin kan mawhphurhna a ni lo.<br>
+                    8. Owner in engtik lai pawhin user ban/kick thei.<br>
+                </div>
+
+                <label class="checkbox-label">
+                    <input type="checkbox" id="termsCheck">
+                    <span>Terms ka pawm. Ka camera/mic hman ka phal e</span>
+                </label>
+
                 <button class="auth-btn" onclick="signup()">🚀 SIGN UP FREE</button>
                 <span class="switch-auth" onclick="showLogin()">Account i nei tawh em? Login</span>
             </div>
         </div>
 
-        <!-- LOGIN PAGE -->
         <div id="loginPage" class="hidden">
             <div class="auth-box">
                 <div class="crown">👑</div>
                 <h1>LOGIN</h1>
-                <p style="margin: 15px 0; color: #888;">Lo kir leh lawmawm</p>
                 <input class="auth-input" id="loginUsername" placeholder="Username">
                 <input class="auth-input" id="loginPassword" type="password" placeholder="Password">
                 <button class="auth-btn" onclick="login()">🔓 LOGIN</button>
@@ -137,7 +210,6 @@
             </div>
         </div>
 
-        <!-- MAIN APP -->
         <div id="mainApp" class="hidden">
             <div class="user-bar">
                 <div>👤 <b id="displayName">Guest</b></div>
@@ -150,26 +222,30 @@
                 <p>Tunge chak zawk? Vote rawh!</p>
             </div>
 
-            <!-- LIVE VIDEO -->
             <div style="position: relative;">
-                <div class="live-badge">🔴 LIVE</div>
-                <div class="video-box">
-                    <iframe 
-                        id="liveFrame"
-                        width="100%" 
-                        height="250" 
-                        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1" 
-                        frameborder="0" 
-                        allow="autoplay; encrypted-media" 
-                        allowfullscreen>
-                    </iframe>
-                </div>
+                <div class="battle-grid">
+                    <div class="video-container">
+                        <div class="live-badge" id="bossLiveBadge" style="display:none">🔴 LIVE</div>
+                        <div class="video-box boss-video">
+                            <video id="bossVideo" autoplay playsinline muted></video>
+                        </div>
+                        <div class="team-name">BOSS 🔥</div>
+                    </div>
+                    <div class="video-container">
+                        <div class="live-badge" id="enemyLiveBadge" style="display:none">🔴 LIVE</div>
+                        <div class="video-box enemy-video">
+                            <video id="enemyVideo" autoplay playsinline muted></video>
+                        </div>
+                        <div class="team-name">ENEMY 💀</div>
+                    </div>
+                <div class="vs-badge">VS</div>
             </div>
 
-            <!-- AUDIO CONTROLS -->
-            <div class="audio-controls">
-                <button class="audio-btn" onclick="toggleMute()" id="muteBtn">🔊 Unmute</button>
-                <span style="font-size: 12px; color: #888;">Live Audio</span>
+            <div class="stream-controls">
+                <button class="control-btn" onclick="requestPermissions()">📹🎤 Camera & Mic On</button>
+                <button class="control-btn" id="streamBtn" onclick="toggleStream()" style="display:none">🔴 GO LIVE</button>
+                <button class="control-btn danger" id="stopStreamBtn" onclick="stopStream()" style="display:none">⏹️ STOP</button>
+                <p style="font-size: 11px; color: #888; margin-top: 10px;">⚠️ I live chuan mi zawng zawngin an hmu ang. Terms zawm ang che</p>
             </div>
 
             <div class="stats">
@@ -187,11 +263,23 @@
                 </div>
             </div>
 
+            <!-- LIVE CHAT BOX -->
+            <div class="chat-container">
+                <div class="chat-header">💬 LIVE CHAT</div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-msg"><span class="username">System:</span> Chat ah lo lawm lutuk! Fimkhur takin inbe rawh u</div>
+                </div>
+                <div class="chat-input-box">
+                    <input class="chat-input" id="chatInput" placeholder="Message type rawh..." maxlength="200" onkeypress="if(event.key==='Enter')sendChat()">
+                    <button class="chat-send" onclick="sendChat()">SEND</button>
+                </div>
+            </div>
+
             <div class="status" id="serverStatus">⏳ Connecting...</div>
 
             <div class="vote-grid">
                 <button class="vote-btn" onclick="vote('boss')">BOSS 🔥<br><small id="bossTotal">0 Votes</small></button>
-                <button class="vote-btn" onclick="vote('enemy')">ENEMY 💀<br><small id="enemyTotal">0 Votes</small></button>
+                <button class="vote-btn enemy" onclick="vote('enemy')">ENEMY 💀<br><small id="enemyTotal">0 Votes</small></button>
             </div>
 
             <div class="coins">
@@ -203,34 +291,36 @@
 
             <button onclick="shareWA()" style="background: #25D366; color: white; border: none; padding: 15px; border-radius: 25px; width: 100%; font-weight: bold; margin-top: 10px;">📱 SHARE WHATSAPP</button>
 
-            <!-- OWNER PANEL -->
             <div class="owner-panel" id="ownerPanel">
                 <h2>👑 OWNER PANEL</h2>
-                <input class="input" id="videoIdInput" placeholder="YouTube Video ID">
-                <button class="vote-btn" onclick="updateVideo()" style="width: 100%; margin: 5px 0;">📹 Update Live Video</button>
+                <h3>⏳ PENDING PAYMENTS</h3>
+                <div id="pendingPayments" style="max-height: 250px; overflow-y: auto;"></div>
                 <hr style="margin: 15px 0; border: 1px solid #333;">
                 <input class="input" id="coinUserId" placeholder="Username">
                 <input class="input" id="coinAmount" placeholder="Coin zat" type="number">
-                <button class="vote-btn" onclick="addCoins()" style="width: 100%; margin: 5px 0;">💰 Pe Coins</button>
+                <button class="vote-btn" onclick="addCoins()" style="width: 100%; margin: 5px 0;">💰 Pe Coins Manual</button>
                 <button class="vote-btn" onclick="declareWinner('boss')" style="width: 100%; margin: 5px 0; background: gold; color: black;">🏆 BOSS WINS</button>
-                <button class="vote-btn" onclick="declareWinner('enemy')" style="width: 100%; margin: 5px 0; background: #666;">💀 ENEMY WINS</button>
+                <button class="vote-btn enemy" onclick="declareWinner('enemy')" style="width: 100%; margin: 5px 0;">💀 ENEMY WINS</button>
                 <button class="vote-btn" onclick="resetVotes()" style="width: 100%; margin: 5px 0; background: #ff0055;">🔄 Reset Votes</button>
             </div>
         </div>
 
-        <!-- PAYMENT MODAL -->
         <div id="paymentModal" class="modal">
             <div class="modal-content">
                 <h2>💳 BUY COINS</h2>
-                <p style="margin: 15px 0;">UPI ID ah hian pawisa thawn rawh:</p>
-                <div class="upi-id" id="upiId">8798407843@nyes</div>
+                <select id="coinPackage" class="input" style="margin-bottom: 15px;">
+                    <option value="100">100 Coins = ₹50</option>
+                    <option value="500">500 Coins = ₹200</option>
+                    <option value="1000">1000 Coins = ₹350</option>
+                </select>
+                <p style="margin: 10px 0;">UPI ID ah hian pawisa thawn rawh:</p>
+                <div class="upi-id">8798407843@nyes</div>
                 <button class="auth-btn" onclick="copyUPI()">📋 Copy UPI ID</button>
-                <p style="font-size: 12px; margin: 15px 0; color: #888;">
-                    100 Coins = ₹50<br>
-                    500 Coins = ₹200<br>
-                    1000 Coins = ₹350
-                </p>
-                <p style="font-size: 11px; color: #ff0055;">Thawn zawh ah WhatsApp: 918798407843 ah screenshot thawn la, coins ka lo pe ang che</p>
+                <hr style="margin: 20px 0; border: 1px solid #333;">
+                <p style="font-size: 14px; color: #FFD700;">Thawn zawh hunah UTR type rawh:</p>
+                <input class="input" id="utrInput" placeholder="UTR/Transaction ID 12-digit" maxlength="12">
+                <button class="auth-btn" onclick="submitPayment()">✅ SUBMIT VERIFY</button>
+                <p style="font-size: 11px; color: #888; margin-top: 10px;">UTR chu PhonePe/GPay → History ah i hmu ang</p>
                 <button class="auth-btn" style="background: #666; margin-top: 15px;" onclick="closePayment()">Close</button>
             </div>
         </div>
@@ -238,15 +328,15 @@
 
 <script>
     const socket = io();
-    let currentUser = localStorage.getItem('pk_username') || null;
-    let myCoins = parseInt(localStorage.getItem('pk_coins') || 0);
-    let usedFree = localStorage.getItem('pk_used_free') === 'true';
+    let sessionId = localStorage.getItem('pk_session') || null;
+    let currentUser = null;
+    let myCoins = 0;
     let isOwner = false;
-    let isMuted = true;
+    let localStream = null;
+    let isStreaming = false;
 
-    // Check if logged in
-    if(currentUser) {
-        showMainApp();
+    if(sessionId) {
+        socket.emit('verify_session', {session_id: sessionId});
     } else {
         showSignup();
     }
@@ -264,103 +354,191 @@
     }
 
     function signup() {
+        if(!document.getElementById('termsCheck').checked) {
+            return alert('❌ Terms & Conditions leh Camera/Mic phalna pawm phawt rawh');
+        }
         const username = document.getElementById('signupUsername').value.trim();
         const password = document.getElementById('signupPassword').value;
-        if(!username || !password) return alert('Username leh Password fill rawh');
-        if(username.length < 3) return alert('Username a tawi lutuk. 3+ character');
-        if(password.length < 4) return alert('Password a tawi lutuk. 4+ character');
-        
-        localStorage.setItem('pk_user_' + username, password);
-        currentUser = username;
-        localStorage.setItem('pk_username', username);
-        
-        // Give 50 free coins on signup
-        myCoins = 50;
-        localStorage.setItem('pk_coins', myCoins);
-        localStorage.setItem('pk_used_free', 'true');
-        usedFree = true;
-        
-        alert('🎉 Account siam a ni! 50 FREE COINS i hmu e');
-        showMainApp();
+        socket.emit('signup', {username, password});
     }
 
     function login() {
         const username = document.getElementById('loginUsername').value.trim();
         const password = document.getElementById('loginPassword').value;
-        const savedPass = localStorage.getItem('pk_user_' + username);
-        
-        if(!savedPass) return alert('Account a awm lo. Sign Up phawt rawh');
-        if(savedPass !== password) return alert('Password a dik lo');
-        
-        currentUser = username;
-        localStorage.setItem('pk_username', username);
-        
-        // Owner check
-        if(username.toLowerCase() === 'boss' && password === 'boss2026') {
-            isOwner = true;
-            localStorage.setItem('pk_is_owner', 'true');
-        }
-        
-        showMainApp();
+        socket.emit('login', {username, password});
     }
 
-    function showMainApp() {
+    socket.on('auth_success', (data) => {
+        sessionId = data.session_id;
+        currentUser = data.username;
+        myCoins = data.coins;
+        isOwner = data.is_owner;
+        localStorage.setItem('pk_session', sessionId);
+
         document.getElementById('signupPage').classList.add('hidden');
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         document.getElementById('displayName').textContent = currentUser;
         document.getElementById('myCoins').textContent = myCoins;
-        if(usedFree) document.getElementById('freeBtn').style.display = 'none';
-        
-        if(localStorage.getItem('pk_is_owner') === 'true' || currentUser.toLowerCase() === 'boss') {
-            isOwner = true;
+
+        if(isOwner) {
             document.getElementById('ownerPanel').style.display = 'block';
         }
-        
-        socket.emit('join', {userId: currentUser});
-    }
+        socket.emit('join', {});
+    });
+
+    socket.on('auth_error', (data) => {
+        alert('❌ ' + data.msg);
+    });
 
     function logout() {
-        localStorage.removeItem('pk_username');
-        localStorage.removeItem('pk_is_owner');
+        localStorage.removeItem('pk_session');
+        if(localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+        }
         location.reload();
     }
 
-    function toggleMute() {
-        const iframe = document.getElementById('liveFrame');
-        const currentSrc = iframe.src;
-        if(isMuted) {
-            iframe.src = currentSrc.replace('mute=1', 'mute=0');
-            document.getElementById('muteBtn').textContent = '🔇 Mute';
-            isMuted = false;
-        } else {
-            iframe.src = currentSrc.replace('mute=0', 'mute=1');
-            document.getElementById('muteBtn').textContent = '🔊 Unmute';
-            isMuted = true;
+    // CAMERA & MIC PERMISSION
+    async function requestPermissions() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({
+                video: { width: 640, height: 480, facingMode: 'user' },
+                audio: true
+            });
+            document.getElementById('bossVideo').srcObject = localStream;
+            document.getElementById('streamBtn').style.display = 'inline-block';
+            alert('✅ Camera & Mic permission pek a ni e. GO LIVE hmet la');
+        } catch(err) {
+            alert('❌ Camera/Mic permission i pek loh chuan live theih loh.\n\nBrowser settings ah: Site Settings → Camera/Microphone → Allow');
+            console.error(err);
         }
     }
 
-    function showPayment() {
-        document.getElementById('paymentModal').style.display = 'block';
+    function toggleStream() {
+        if(!isStreaming) {
+            isStreaming = true;
+            document.getElementById('streamBtn').textContent = '🔴 LIVE VEK';
+            document.getElementById('streamBtn').classList.add('active');
+            document.getElementById('stopStreamBtn').style.display = 'inline-block';
+            document.getElementById('bossLiveBadge').style.display = 'block';
+            socket.emit('start_stream', {session_id: sessionId, team: 'boss'});
+            addChatMessage('System', `${currentUser} a rawn LIVE e! 🔥`, true);
+        }
     }
 
-    function closePayment() {
-        document.getElementById('paymentModal').style.display = 'none';
+    function stopStream() {
+        isStreaming = false;
+        document.getElementById('streamBtn').textContent = '🔴 GO LIVE';
+        document.getElementById('streamBtn').classList.remove('active');
+        document.getElementById('stopStreamBtn').style.display = 'none';
+        document.getElementById('bossLiveBadge').style.display = 'none';
+        socket.emit('stop_stream', {session_id: sessionId});
+        addChatMessage('System', `${currentUser} live a tawp e`, true);
     }
 
-    function copyUPI() {
-        const upiText = '8798407843@nyes';
-        navigator.clipboard.writeText(upiText);
-        alert('✅ UPI ID Copy a ni: ' + upiText);
+    // CHAT FUNCTION
+    function sendChat() {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if(!msg) return;
+        if(msg.length > 200) return alert('Message a sei lutuk. 200 chars chiah');
+
+        socket.emit('send_chat', {
+            session_id: sessionId,
+            message: msg
+        });
+        input.value = '';
     }
+
+    socket.on('chat_message', (data) => {
+        addChatMessage(data.username, data.message, data.is_owner);
+    });
+
+    function addChatMessage(username, message, isOwner = false) {
+        const chatBox = document.getElementById('chatMessages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-msg' + (isOwner? ' owner' : '');
+        msgDiv.innerHTML = `<span class="username">${username}:</span> ${escapeHtml(message)}`;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Message 50 chiah dah
+        if(chatBox.children.length > 50) {
+            chatBox.removeChild(chatBox.firstChild);
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function vote(team) {
+        if(myCoins < 10) {
+            alert('Coins a tlem! Lei rawh');
+            showPayment();
+            return;
+        }
+        socket.emit('vote', {session_id: sessionId, team: team});
+    }
+
+    socket.on('coins_update', (data) => {
+        myCoins = data.coins;
+        document.getElementById('myCoins').textContent = myCoins;
+    });
+
+    function submitPayment() {
+        const utr = document.getElementById('utrInput').value.trim();
+        const coins = document.getElementById('coinPackage').value;
+        if(utr.length!== 12 ||!/^\d+$/.test(utr)) return alert('UTR 12-digit number dik tak type rawh');
+
+        socket.emit('payment_submit', {
+            session_id: sessionId,
+            utr: utr,
+            coins: coins
+        });
+        alert('✅ Submit a ni. Owner in 2-5 min chhungin verify ang');
+        document.getElementById('utrInput').value = '';
+        closePayment();
+    }
+
+    function approvePayment(utr, userId, coins) {
+        if(!confirm(`Approve ${coins} coins for ${userId}?\nUTR: ${utr}`)) return;
+        socket.emit('owner_approve_payment', {
+            session_id: sessionId,
+            utr: utr,
+            userId: userId,
+            coins: coins
+        });
+    }
+
+    function addCoins() {
+        const userId = document.getElementById('coinUserId').value;
+        const amount = document.getElementById('coinAmount').value;
+        socket.emit('owner_add_coins', {session_id: sessionId, userId, amount: parseInt(amount)});
+    }
+
+    function declareWinner(team) {
+        socket.emit('owner_declare_winner', {session_id: sessionId, team});
+    }
+
+    function resetVotes() {
+        socket.emit('owner_reset', {session_id: sessionId});
+    }
+
+    function showPayment() { document.getElementById('paymentModal').style.display = 'block'; }
+    function closePayment() { document.getElementById('paymentModal').style.display = 'none'; }
+    function copyUPI() { navigator.clipboard.writeText('8798407843@nyes'); alert('✅ Copy a ni'); }
+    function shareWA() {
+        const text = `🔥 BOSS PK LIVE BATTLE 🔥\n\nBOSS vs ENEMY Live\n${window.location.href}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+    function getFreeCoins() { socket.emit('get_free_coins', {session_id: sessionId}); }
 
     socket.on('connect', () => {
         document.getElementById('serverStatus').textContent = '✅ Server Connected';
-        if(currentUser) socket.emit('join', {userId: currentUser});
-    });
-
-    socket.on('disconnect', () => {
-        document.getElementById('serverStatus').textContent = '❌ Server Offline';
     });
 
     socket.on('update', (data) => {
@@ -368,70 +546,39 @@
         document.getElementById('enemyVotes').textContent = data.enemy;
         document.getElementById('bossTotal').textContent = data.boss + ' Votes';
         document.getElementById('enemyTotal').textContent = data.enemy + ' Votes';
-        document.getElementById('onlineUsers').textContent = data.online;
-        if(data.videoId) {
-            const muteParam = isMuted ? 'mute=1' : 'mute=0';
-            document.getElementById('liveFrame').src = `https://www.youtube.com/embed/${data.videoId}?autoplay=1&${muteParam}`;
+        document.getElementById('onlineUsers').textContent = data.online || 0;
+    });
+
+    socket.on('pending_update', (payments) => {
+        if(!isOwner) return;
+        let html = '';
+        payments.forEach(p => {
+            html += `<div class="payment-item">
+                <b style="color:#00ff88">${p.userId}</b> - ${p.coins} Coins<br>
+                <small>UTR: ${p.utr}</small><br>
+                <button onclick="approvePayment('${p.utr}', '${p.userId}', ${p.coins})" style="background:#00ff88; color:black; border:none; padding:6px 12px; border-radius:5px; margin-top:5px; cursor:pointer; font-weight:bold;">✅ Approve</button>
+            </div>`;
+        });
+        document.getElementById('pendingPayments').innerHTML = html || '<p style="color:#888">Pending a awm lo</p>';
+    });
+
+    socket.on('payment_approved', (data) => {
+        if(data.userId === currentUser) {
+            myCoins += parseInt(data.coins);
+            document.getElementById('myCoins').textContent = myCoins;
+            alert(`🎉 ${data.coins} COINS i account ah a lut e!`);
         }
     });
 
-    function vote(team) {
-        if(myCoins < 10) {
-            alert('Coins a tlem! Free coins la la emaw lei rawh');
-            showPayment();
-            return;
-        }
-        myCoins -= 10;
-        localStorage.setItem('pk_coins', myCoins);
-        document.getElementById('myCoins').textContent = myCoins;
-        socket.emit('vote', {team: team, userId: currentUser});
-    }
-
-    function getFreeCoins() {
-        if(usedFree) return;
-        myCoins += 50;
-        usedFree = true;
-        localStorage.setItem('pk_coins', myCoins);
-        localStorage.setItem('pk_used_free', 'true');
+    socket.on('free_coins_success', (data) => {
+        myCoins = data.coins;
         document.getElementById('myCoins').textContent = myCoins;
         document.getElementById('freeBtn').style.display = 'none';
         alert('🎁 50 Free Coins i hmu!');
-    }
+    });
 
-    function shareWA() {
-        const text = `🔥 BOSS PK LIVE BATTLE 🔥\n\nTunge chak zawk? Vote rawh 👊\nSign Up la, FREE COIN 50 hmu nghal\n\n👇 CLICK HERE 👇\n${window.location.href}`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-    }
-
-    function updateVideo() {
-        const videoId = document.getElementById('videoIdInput').value.trim();
-        if(!videoId) return alert('Video ID dah rawh');
-        socket.emit('owner_update_video', {videoId: videoId, password: 'boss2026'});
-        alert('✅ Video Updated!');
-    }
-
-    function addCoins() {
-        const userId = document.getElementById('coinUserId').value;
-        const amount = document.getElementById('coinAmount').value;
-        socket.emit('owner_add_coins', {userId, amount: parseInt(amount), password: 'boss2026'});
-        alert('✅ Coins pek a ni');
-    }
-
-    function declareWinner(team) {
-        socket.emit('owner_declare_winner', {team, password: 'boss2026'});
-        alert(`🏆 ${team.toUpperCase()} WINS!`);
-    }
-
-    function resetVotes() {
-        socket.emit('owner_reset', {password: 'boss2026'});
-        alert('🔄 Votes Reset!');
-    }
-
-    // Close modal when clicking outside
     window.onclick = function(event) {
-        if(event.target == document.getElementById('paymentModal')) {
-            closePayment();
-        }
+        if(event.target == document.getElementById('paymentModal')) closePayment();
     }
 </script>
 </body>
