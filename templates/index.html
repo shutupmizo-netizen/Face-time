@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOSS PK Live Server</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial; background: #0a0a0a; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+ .container { background: linear-gradient(145deg, #1a1a1a, #0f0f0f); padding: 30px 25px; border-radius: 30px; text-align: center; box-shadow: 0 20px 60px rgba(255,0,80,0.3); border: 2px solid #ff0050; max-width: 420px; width: 100%; }
+ .server-status { background: #25D366; color: white; padding: 5px 12px; border-radius: 10px; font-size: 11px; margin-bottom: 10px; display: inline-block; }
+ .owner-badge { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; padding: 6px 15px; border-radius: 15px; font-size: 11px; font-weight: bold; display: none; margin-bottom: 10px; }
+ .owner-badge.show { display: inline-block; }
+ .coin-bar { background: #000; border: 2px solid #FFD700; border-radius: 15px; padding: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+ .coin-balance { color: #FFD700; font-size: 18px; font-weight: bold; }
+ .free-coin-btn { background: #FFD700; color: #000; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px; }
+ .free-coin-btn:disabled { opacity: 0.5; }
+ .avatar { width: 80px; height: 80px; background: linear-gradient(135deg, #ff0050, #8b5cf6); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 35px; border: 3px solid #ff0050; }
+    h1 { color: white; font-size: 28px; margin-bottom: 5px; }
+ .tag { color: #ff0050; font-size: 12px; margin-bottom: 15px; font-weight: bold; }
+ .vote-box { background: #000; padding: 18px; border-radius: 20px; margin: 15px 0; border: 1px solid #333; }
+ .vote-title { color: #ff0050; font-size: 15px; margin-bottom: 12px; font-weight: bold; }
+ .vote-cost { color: #FFD700; font-size: 12px; margin-bottom: 12px; }
+ .vote-btns { display: flex; gap: 10px; }
+ .vote-btn { flex: 1; background: #1a1a1a; border: 2px solid #ff0050; color: white; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+ .vote-btn:active { transform: scale(0.95); }
+ .vote-btn:disabled { opacity: 0.3; }
+ .vote-count { font-size: 22px; display: block; margin-bottom: 3px; }
+ .btn { display: block; width: 100%; padding: 14px; margin: 8px 0; border-radius: 15px; text-decoration: none; font-size: 16px; font-weight: bold; transition: transform 0.2s; border: none; cursor: pointer; }
+ .btn:active { transform: scale(0.95); }
+ .wa { background: #25D366; color: white; }
+ .support { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+ .admin { background: linear-gradient(135deg, #8b5cf6, #ff0050); color: white; display: none; }
+ .admin.show { display: block; }
+ .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; }
+ .stat { color: #888; font-size: 11px; }
+ .stat b { display: block; color: #ff0050; font-size: 16px; }
+ .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 999; padding: 20px; }
+ .modal-content { background: #1a1a1a; padding: 25px; border-radius: 20px; border: 2px solid #FFD700; text-align: center; max-width: 350px; width: 100%; }
+ .input-group { margin: 15px 0; text-align: left; }
+ .input-group label { color: #FFD700; font-size: 13px; display: block; margin-bottom: 5px; }
+ .input-group input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #333; background: #000; color: white; font-size: 16px; }
+ .close { background: #ff0050; color: white; border: none; padding: 10px 25px; border-radius: 10px; font-size: 15px; margin-top: 12px; cursor: pointer; width: 100%; }
+ .admin-btn { background: #FFD700; color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: bold; margin: 8px 0; cursor: pointer; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="server-status" id="serverStatus">🟢 Server Connected</div>
+    <div class="owner-badge" id="ownerBadge">👑 OWNER MODE</div>
+    <div class="coin-bar">
+      <div class="coin-balance">🪙 <span id="coinBalance">0</span> Coins</div>
+      <button class="free-coin-btn" onclick="getFreeCoins()" id="freeBtn">+50 FREE</button>
+    </div>
+    <div class="avatar">👑</div>
+    <h1>BOSS</h1>
+    <div class="tag">LIVE SERVER | REAL-TIME</div>
+    <div class="vote-box">
+      <div class="vote-title">👊 TUNGE CHAK ANG?</div>
+      <div class="vote-cost">Vote 1 = 10 Coins</div>
+      <div class="vote-btns">
+        <button class="vote-btn" onclick="vote('boss')">
+          <span class="vote-count" id="bossCount">0</span>
+          BOSS 🔥
+        </button>
+        <button class="vote-btn" onclick="vote('enemy')">
+          <span class="vote-count" id="enemyCount">0</span>
+          ENEMY 💀
+        </button>
+      </div>
+    <button onclick="showSupport()" class="btn support">🎁 Buy Coins</button>
+    <button onclick="showAdmin()" class="btn admin" id="adminBtn">⚙️ Owner Panel</button>
+    <a href="https://wa.me/918798407843" class="btn wa">📱 WhatsApp</a>
+    <div class="stats">
+      <div class="stat"><b id="totalVotes">0</b>Total Votes</div>
+      <div class="stat"><b id="myVotes">0</b>My Votes</div>
+      <div class="stat"><b id="onlineUsers">1</b>Online</div>
+    </div>
+  </div>
+  <div class="modal" id="adminModal">
+    <div class="modal-content">
+      <h2 style="color:#FFD700; margin-bottom:15px;">⚙️ Owner Panel</h2>
+      <div class="input-group">
+        <label>User ID</label>
+        <input type="text" id="userId" placeholder="ex: fan123">
+      </div>
+      <div class="input-group">
+        <label>Coins Pek Tur</label>
+        <input type="number" id="coinAmount" value="1000">
+      </div>
+      <button class="admin-btn" onclick="addCoins()">🪙 Coins Pe Ang</button>
+      <button class="close" onclick="hideAdmin()">Close</button>
+    </div>
+  </div>
+  <script>
+    const API = window.location.origin;
+    let userId = localStorage.getItem('userId') || 'user_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('userId', userId);
+    let isOwner = false;
+    let freeCoinsUsed = localStorage.getItem('freeCoinsUsed') === 'true';
+    if(freeCoinsUsed) {
+      document.getElementById('freeBtn').disabled = true;
+      document.getElementById('freeBtn').textContent = 'Used ✓';
+    }
+    let keySequence = [];
+    document.addEventListener('keydown', (e) => {
+      keySequence.push(e.key.toLowerCase());
+      if(keySequence.slice(-4).join('') === 'boss') {
+        let pass = prompt('Owner Password:');
+        if(pass === 'boss2026') enableOwnerMode();
+      }
+      if(keySequence.length > 10) keySequence.shift();
+    });
+    function enableOwnerMode() {
+      isOwner = true;
+      document.getElementById('ownerBadge').classList.add('show');
+      document.getElementById('adminBtn').classList.add('show');
+      alert('👑 Owner Mode ON');
+    }
+    async function loadData() {
+      try {
+        const res = await fetch(`${API}/api/data?user_id=${userId}`);
+        const data = await res.json();
+        document.getElementById('coinBalance').textContent = data.coins;
+        document.getElementById('bossCount').textContent = data.votes.boss;
+        document.getElementById('enemyCount').textContent = data.votes.enemy;
+        document.getElementById('totalVotes').textContent = data.votes.boss + data.votes.enemy;
+        document.getElementById('myVotes').textContent = data.my_votes;
+        document.getElementById('serverStatus').style.background = '#25D366';
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+          btn.disabled = data.coins < 10;
+        });
+      } catch(e) {
+        document.getElementById('serverStatus').style.background = '#ff0050';
+        document.getElementById('serverStatus').textContent = '🔴 Server Offline';
+      }
+    }
+    async function vote(team) {
+      const res = await fetch(`${API}/api/vote`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({user_id: userId, team: team})
+      });
+      if(res.ok) loadData();
+      else alert('Coin a zo!');
+    }
+    async function getFreeCoins() {
+      if(freeCoinsUsed) return;
+      await fetch(`${API}/api/free_coins`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({user_id: userId})
+      });
+      freeCoinsUsed = true;
+      localStorage.setItem('freeCoinsUsed', 'true');
+      document.getElementById('freeBtn').disabled = true;
+      document.getElementById('freeBtn').textContent = 'Used ✓';
+      loadData();
+      alert('🪙 50 Coins i hmu e!');
+    }
+    async function addCoins() {
+      const targetUser = document.getElementById('userId').value;
+      const amount = document.getElementById('coinAmount').value;
+      const pass = prompt('Owner Password:');
+      const res = await fetch(`${API}/api/owner/add_coins`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({user_id: targetUser, amount: amount, password: pass})
+      });
+      if(res.ok) {
+        alert(`✅ ${targetUser} hnenah ${amount} coins pek a ni e`);
+        document.getElementById('userId').value = '';
+      } else {
+        alert('❌ Password dik lo');
+      }
+    }
+    function showSupport() {
+      window.open('https://wa.me/918798407843?text=Coin%20lei%20ka%20duh%20UserID:%20' + userId, '_blank');
+    }
+    function showAdmin() { document.getElementById('adminModal').style.display = 'flex'; }
+    function hideAdmin() { document.getElementById('adminModal').style.display = 'none'; }
+    loadData();
+    setInterval(loadData, 3000);
+  </script>
+</body>
+</html>
