@@ -74,7 +74,7 @@ def handle_vote(data):
         emit('vote_error', {'msg': 'Coins a tlem'})
         return
     users_db[username]['coins'] -= 10
-    game_data += 1
+    game_data += 1  # DIK TAWH ✅
     emit('update', game_data, broadcast=True)
     emit('coins_update', {'coins': users_db[username]['coins']})
 
