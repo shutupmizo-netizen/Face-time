@@ -75,7 +75,6 @@
        .control-btn.active { background: #00ff88; color: black; }
        .control-btn.danger { background: #ff0055; }
 
-        /* CHAT BOX */
        .chat-container {
             background: #1a1a1a; border-radius: 12px; margin: 15px 0;
             border: 2px solid #333; height: 300px; display: flex; flex-direction: column;
@@ -263,7 +262,6 @@
                 </div>
             </div>
 
-            <!-- LIVE CHAT BOX -->
             <div class="chat-container">
                 <div class="chat-header">💬 LIVE CHAT</div>
                 <div class="chat-messages" id="chatMessages">
@@ -399,7 +397,6 @@
         location.reload();
     }
 
-    // CAMERA & MIC PERMISSION
     async function requestPermissions() {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({
@@ -419,167 +416,4 @@
         if(!isStreaming) {
             isStreaming = true;
             document.getElementById('streamBtn').textContent = '🔴 LIVE VEK';
-            document.getElementById('streamBtn').classList.add('active');
-            document.getElementById('stopStreamBtn').style.display = 'inline-block';
-            document.getElementById('bossLiveBadge').style.display = 'block';
-            socket.emit('start_stream', {session_id: sessionId, team: 'boss'});
-            addChatMessage('System', `${currentUser} a rawn LIVE e! 🔥`, true);
-        }
-    }
-
-    function stopStream() {
-        isStreaming = false;
-        document.getElementById('streamBtn').textContent = '🔴 GO LIVE';
-        document.getElementById('streamBtn').classList.remove('active');
-        document.getElementById('stopStreamBtn').style.display = 'none';
-        document.getElementById('bossLiveBadge').style.display = 'none';
-        socket.emit('stop_stream', {session_id: sessionId});
-        addChatMessage('System', `${currentUser} live a tawp e`, true);
-    }
-
-    // CHAT FUNCTION
-    function sendChat() {
-        const input = document.getElementById('chatInput');
-        const msg = input.value.trim();
-        if(!msg) return;
-        if(msg.length > 200) return alert('Message a sei lutuk. 200 chars chiah');
-
-        socket.emit('send_chat', {
-            session_id: sessionId,
-            message: msg
-        });
-        input.value = '';
-    }
-
-    socket.on('chat_message', (data) => {
-        addChatMessage(data.username, data.message, data.is_owner);
-    });
-
-    function addChatMessage(username, message, isOwner = false) {
-        const chatBox = document.getElementById('chatMessages');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'chat-msg' + (isOwner? ' owner' : '');
-        msgDiv.innerHTML = `<span class="username">${username}:</span> ${escapeHtml(message)}`;
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-        // Message 50 chiah dah
-        if(chatBox.children.length > 50) {
-            chatBox.removeChild(chatBox.firstChild);
-        }
-    }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function vote(team) {
-        if(myCoins < 10) {
-            alert('Coins a tlem! Lei rawh');
-            showPayment();
-            return;
-        }
-        socket.emit('vote', {session_id: sessionId, team: team});
-    }
-
-    socket.on('coins_update', (data) => {
-        myCoins = data.coins;
-        document.getElementById('myCoins').textContent = myCoins;
-    });
-
-    function submitPayment() {
-        const utr = document.getElementById('utrInput').value.trim();
-        const coins = document.getElementById('coinPackage').value;
-        if(utr.length!== 12 ||!/^\d+$/.test(utr)) return alert('UTR 12-digit number dik tak type rawh');
-
-        socket.emit('payment_submit', {
-            session_id: sessionId,
-            utr: utr,
-            coins: coins
-        });
-        alert('✅ Submit a ni. Owner in 2-5 min chhungin verify ang');
-        document.getElementById('utrInput').value = '';
-        closePayment();
-    }
-
-    function approvePayment(utr, userId, coins) {
-        if(!confirm(`Approve ${coins} coins for ${userId}?\nUTR: ${utr}`)) return;
-        socket.emit('owner_approve_payment', {
-            session_id: sessionId,
-            utr: utr,
-            userId: userId,
-            coins: coins
-        });
-    }
-
-    function addCoins() {
-        const userId = document.getElementById('coinUserId').value;
-        const amount = document.getElementById('coinAmount').value;
-        socket.emit('owner_add_coins', {session_id: sessionId, userId, amount: parseInt(amount)});
-    }
-
-    function declareWinner(team) {
-        socket.emit('owner_declare_winner', {session_id: sessionId, team});
-    }
-
-    function resetVotes() {
-        socket.emit('owner_reset', {session_id: sessionId});
-    }
-
-    function showPayment() { document.getElementById('paymentModal').style.display = 'block'; }
-    function closePayment() { document.getElementById('paymentModal').style.display = 'none'; }
-    function copyUPI() { navigator.clipboard.writeText('8798407843@nyes'); alert('✅ Copy a ni'); }
-    function shareWA() {
-        const text = `🔥 BOSS PK LIVE BATTLE 🔥\n\nBOSS vs ENEMY Live\n${window.location.href}`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-    }
-    function getFreeCoins() { socket.emit('get_free_coins', {session_id: sessionId}); }
-
-    socket.on('connect', () => {
-        document.getElementById('serverStatus').textContent = '✅ Server Connected';
-    });
-
-    socket.on('update', (data) => {
-        document.getElementById('bossVotes').textContent = data.boss;
-        document.getElementById('enemyVotes').textContent = data.enemy;
-        document.getElementById('bossTotal').textContent = data.boss + ' Votes';
-        document.getElementById('enemyTotal').textContent = data.enemy + ' Votes';
-        document.getElementById('onlineUsers').textContent = data.online || 0;
-    });
-
-    socket.on('pending_update', (payments) => {
-        if(!isOwner) return;
-        let html = '';
-        payments.forEach(p => {
-            html += `<div class="payment-item">
-                <b style="color:#00ff88">${p.userId}</b> - ${p.coins} Coins<br>
-                <small>UTR: ${p.utr}</small><br>
-                <button onclick="approvePayment('${p.utr}', '${p.userId}', ${p.coins})" style="background:#00ff88; color:black; border:none; padding:6px 12px; border-radius:5px; margin-top:5px; cursor:pointer; font-weight:bold;">✅ Approve</button>
-            </div>`;
-        });
-        document.getElementById('pendingPayments').innerHTML = html || '<p style="color:#888">Pending a awm lo</p>';
-    });
-
-    socket.on('payment_approved', (data) => {
-        if(data.userId === currentUser) {
-            myCoins += parseInt(data.coins);
-            document.getElementById('myCoins').textContent = myCoins;
-            alert(`🎉 ${data.coins} COINS i account ah a lut e!`);
-        }
-    });
-
-    socket.on('free_coins_success', (data) => {
-        myCoins = data.coins;
-        document.getElementById('myCoins').textContent = myCoins;
-        document.getElementById('freeBtn').style.display = 'none';
-        alert('🎁 50 Free Coins i hmu!');
-    });
-
-    window.onclick = function(event) {
-        if(event.target == document.getElementById('paymentModal')) closePayment();
-    }
-</script>
-</body>
-</html>
+     
