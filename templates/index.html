@@ -7,180 +7,75 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0a0a0a; color: white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            text-align: center; padding: 15px;
-        }
-      .container { max-width: 500px; margin: 0 auto; }
-      .hidden { display: none!important; }
-
-      .auth-box {
-            background: #1a1a1a; padding: 30px; border-radius: 20px;
-            margin-top: 50px; border: 2px solid #ff0055;
-        }
-      .auth-input {
-            width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px;
-            border: 1px solid #333; background: #0a0a0a; color: white; font-size: 16px;
-        }
-      .auth-btn {
-            background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white;
-            padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold;
-            cursor: pointer; width: 100%; margin-top: 10px;
-        }
-      .switch-auth { color: #00ff88; cursor: pointer; margin-top: 15px; display: block; }
-
-      .header { background: linear-gradient(135deg, #ff0055, #ff00ff); padding: 15px; border-radius: 15px; margin-bottom: 15px; }
-      .crown { font-size: 40px; animation: pulse 1s infinite; }
+        body { background: #0a0a0a; color: white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; text-align: center; padding: 15px; }
+     .container { max-width: 500px; margin: 0 auto; }
+     .hidden { display: none!important; }
+     .auth-box { background: #1a1a1a; padding: 30px; border-radius: 20px; margin-top: 50px; border: 2px solid #ff0055; }
+     .auth-input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #0a0a0a; color: white; font-size: 16px; }
+     .auth-btn { background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+     .switch-auth { color: #00ff88; cursor: pointer; margin-top: 15px; display: block; }
+     .header { background: linear-gradient(135deg, #ff0055, #ff00ff); padding: 15px; border-radius: 15px; margin-bottom: 15px; }
+     .crown { font-size: 40px; animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-      .user-bar {
-            background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-
-      .battle-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;
-        }
-      .video-container { position: relative; }
-      .video-box {
-            border-radius: 12px; overflow: hidden; border: 3px solid;
-            box-shadow: 0 0 20px rgba(255,0,85,0.5); aspect-ratio: 9/16; background: #000;
-        }
-      .boss-video { border-color: #ff0055; }
-      .enemy-video { border-color: #00aaff; }
+     .user-bar { background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+     .battle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+     .video-container { position: relative; }
+     .video-box { border-radius: 12px; overflow: hidden; border: 3px solid; box-shadow: 0 0 20px rgba(255,0,85,0.5); aspect-ratio: 9/16; background: #000; }
+     .boss-video { border-color: #ff0055; }
+     .enemy-video { border-color: #00aaff; }
         video { width: 100%; height: 100%; object-fit: cover; }
-      .live-badge {
-            background: red; color: white; padding: 4px 10px; border-radius: 20px;
-            font-size: 10px; font-weight: bold; position: absolute; top: 8px; left: 8px; z-index: 10;
-            animation: blink 1s infinite;
-        }
-      .team-name {
-            position: absolute; bottom: 8px; left: 0; right: 0;
-            background: rgba(0,0,0,0.7); padding: 5px; font-weight: bold;
-        }
+     .live-badge { background: red; color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; position: absolute; top: 8px; left: 8px; z-index: 10; animation: blink 1s infinite; }
+     .team-name { position: absolute; bottom: 8px; left: 0; right: 0; background: rgba(0,0,0,0.7); padding: 5px; font-weight: bold; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-      .vs-badge {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #FFD700; color: black; padding: 8px 12px; border-radius: 50%;
-            font-weight: bold; font-size: 18px; z-index: 20; border: 3px solid white;
-        }
-
-      .stream-controls {
-            background: #1a1a1a; padding: 15px; border-radius: 10px; margin: 15px 0;
-        }
-      .control-btn {
-            background: #333; border: none; color: white; padding: 10px 15px;
-            border-radius: 8px; cursor: pointer; margin: 5px; font-size: 13px;
-        }
-      .control-btn.active { background: #00ff88; color: black; }
-      .control-btn.danger { background: #ff0055; }
-
-      .chat-container {
-            background: #1a1a1a; border-radius: 12px; margin: 15px 0;
-            border: 2px solid #333; height: 300px; display: flex; flex-direction: column;
-        }
-      .chat-header {
-            background: #0a0a0a; padding: 10px; border-radius: 10px 10px 0 0;
-            font-weight: bold; border-bottom: 1px solid #333;
-        }
-      .chat-messages {
-            flex: 1; overflow-y: auto; padding: 10px; text-align: left;
-        }
-      .chat-msg {
-            margin: 8px 0; padding: 8px; background: #0a0a0a; border-radius: 8px;
-            font-size: 13px; word-break: break-word;
-        }
-      .chat-msg.owner { border-left: 3px solid #FFD700; }
-      .chat-msg.username { color: #00ff88; font-weight: bold; }
-      .chat-msg.owner.username { color: #FFD700; }
-      .chat-input-box {
-            display: flex; padding: 10px; border-top: 1px solid #333;
-        }
-      .chat-input {
-            flex: 1; padding: 10px; border-radius: 8px 0 0 8px;
-            border: 1px solid #333; background: #0a0a0a; color: white;
-        }
-      .chat-send {
-            background: #ff0055; border: none; color: white; padding: 10px 15px;
-            border-radius: 0 8px 8px 0; cursor: pointer; font-weight: bold;
-        }
-
-      .stats { display: flex; justify-content: space-around; margin: 15px 0; }
-      .stat-box { background: #1a1a1a; padding: 10px 15px; border-radius: 10px; flex: 1; margin: 0 5px; }
-      .stat-number { font-size: 24px; font-weight: bold; color: #00ff88; }
-
-      .vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-      .vote-btn {
-            background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white;
-            padding: 20px; border-radius: 12px; font-size: 18px; font-weight: bold;
-            cursor: pointer; transition: 0.2s;
-        }
-      .vote-btn.enemy { background: linear-gradient(135deg, #0088ff, #00aaff); }
-      .vote-btn:active { transform: scale(0.95); }
-
-      .coins { background: #1a1a1a; padding: 15px; border-radius: 12px; margin: 15px 0; }
-      .free-btn {
-            background: #00ff88; color: black; border: none; padding: 12px 25px;
-            border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px;
-        }
-      .buy-coins {
-            background: #FFD700; color: black; border: none; padding: 12px 25px;
-            border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%;
-        }
-
-      .owner-panel {
-            display: none; background: #1a1a1a; padding: 20px; border-radius: 12px;
-            margin-top: 20px; border: 2px solid #ff0055;
-        }
-      .input {
-            width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px;
-            border: 1px solid #333; background: #0a0a0a; color: white;
-        }
-      .status { font-size: 12px; color: #00ff88; margin: 10px 0; }
-      .logout-btn { background: #ff0055; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
-
-      .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 1000; padding: 20px; overflow-y: auto;
-        }
-      .modal-content {
-            background: #1a1a1a; padding: 25px; border-radius: 15px;
-            max-width: 400px; margin: 20px auto; border: 2px solid #FFD700;
-        }
-      .upi-id {
-            background: #0a0a0a; padding: 15px; border-radius: 10px;
-            font-size: 18px; font-weight: bold; color: #00ff88; margin: 15px 0;
-            word-break: break-all;
-        }
-      .payment-item {
-            background: #0a0a0a; padding: 12px; margin: 8px 0; border-radius: 8px;
-            border-left: 3px solid #FFD700; text-align: left;
-        }
-      .terms-box {
-            text-align: left; font-size: 11px; color: #888; margin: 15px 0;
-            max-height: 180px; overflow-y: auto; padding: 12px; background: #0a0a0a; border-radius: 8px;
-            border: 1px solid #333;
-        }
-      .terms-box b { color: #FFD700; }
-      .checkbox-label {
-            display: flex; align-items: flex-start; font-size: 12px; margin: 15px 0; text-align: left;
-        }
-      .checkbox-label input { margin-right: 10px; margin-top: 2px; width: 18px; height: 18px; flex-shrink: 0; }
+     .vs-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #FFD700; color: black; padding: 8px 12px; border-radius: 50%; font-weight: bold; font-size: 18px; z-index: 20; border: 3px solid white; }
+     .stream-controls { background: #1a1a1a; padding: 15px; border-radius: 10px; margin: 15px 0; }
+     .control-btn { background: #333; border: none; color: white; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 13px; }
+     .control-btn.active { background: #00ff88; color: black; }
+     .control-btn.danger { background: #ff0055; }
+     .chat-container { background: #1a1a1a; border-radius: 12px; margin: 15px 0; border: 2px solid #333; height: 300px; display: flex; flex-direction: column; }
+     .chat-header { background: #0a0a0a; padding: 10px; border-radius: 10px 10px 0 0; font-weight: bold; border-bottom: 1px solid #333; }
+     .chat-messages { flex: 1; overflow-y: auto; padding: 10px; text-align: left; }
+     .chat-msg { margin: 8px 0; padding: 8px; background: #0a0a0a; border-radius: 8px; font-size: 13px; word-break: break-word; }
+     .chat-msg.owner { border-left: 3px solid #FFD700; }
+     .chat-msg.username { color: #00ff88; font-weight: bold; }
+     .chat-msg.owner.username { color: #FFD700; }
+     .chat-input-box { display: flex; padding: 10px; border-top: 1px solid #333; }
+     .chat-input { flex: 1; padding: 10px; border-radius: 8px 0 0 8px; border: 1px solid #333; background: #0a0a0a; color: white; }
+     .chat-send { background: #ff0055; border: none; color: white; padding: 10px 15px; border-radius: 0 8px 8px 0; cursor: pointer; font-weight: bold; }
+     .stats { display: flex; justify-content: space-around; margin: 15px 0; }
+     .stat-box { background: #1a1a1a; padding: 10px 15px; border-radius: 10px; flex: 1; margin: 0 5px; }
+     .stat-number { font-size: 24px; font-weight: bold; color: #00ff88; }
+     .vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+     .vote-btn { background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white; padding: 20px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+     .vote-btn.enemy { background: linear-gradient(135deg, #0088ff, #00aaff); }
+     .vote-btn:active { transform: scale(0.95); }
+     .coins { background: #1a1a1a; padding: 15px; border-radius: 12px; margin: 15px 0; }
+     .free-btn { background: #00ff88; color: black; border: none; padding: 12px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+     .buy-coins { background: #FFD700; color: black; border: none; padding: 12px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%; }
+     .owner-panel { display: none; background: #1a1a1a; padding: 20px; border-radius: 12px; margin-top: 20px; border: 2px solid #ff0055; }
+     .input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #333; background: #0a0a0a; color: white; }
+     .status { font-size: 12px; color: #00ff88; margin: 10px 0; }
+     .logout-btn { background: #ff0055; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; padding: 20px; overflow-y: auto; }
+     .modal-content { background: #1a1a1a; padding: 25px; border-radius: 15px; max-width: 400px; margin: 20px auto; border: 2px solid #FFD700; }
+     .upi-id { background: #0a0a0a; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: bold; color: #00ff88; margin: 15px 0; word-break: break-all; }
+     .payment-item { background: #0a0a0a; padding: 12px; margin: 8px 0; border-radius: 8px; border-left: 3px solid #FFD700; text-align: left; }
+     .terms-box { text-align: left; font-size: 11px; color: #888; margin: 15px 0; max-height: 180px; overflow-y: auto; padding: 12px; background: #0a0a0a; border-radius: 8px; border: 1px solid #333; }
+     .terms-box b { color: #FFD700; }
+     .checkbox-label { display: flex; align-items: flex-start; font-size: 12px; margin: 15px 0; text-align: left; }
+     .checkbox-label input { margin-right: 10px; margin-top: 2px; width: 18px; height: 18px; flex-shrink: 0; }
     </style>
 </head>
 <body>
     <div class="container">
-
         <div id="signupPage">
             <div class="auth-box">
                 <div class="crown">👑</div>
                 <h1>SIGN UP / INZIAT LUT</h1>
                 <input class="auth-input" id="signupUsername" placeholder="Username / Hming" maxlength="15">
                 <input class="auth-input" id="signupPassword" type="password" placeholder="Password / Thuruk">
-
                 <div class="terms-box">
                     <b>TERMS & CONDITIONS / DAN LEH DUN</b><br><br>
-
                     <b>ENGLISH:</b><br>
                     1. AGE: This app is for users 18+ only. By signing up, you confirm you are at least 18 years old.<br>
                     2. CAMERA & MIC: We request access to your camera and microphone for live streaming. Your video/audio will NOT be recorded or stored without explicit consent. You can stop streaming anytime.<br>
@@ -191,7 +86,6 @@
                     7. LIABILITY: Entertainment only. We are not responsible for financial loss, disputes, or damages.<br>
                     8. MODERATION: Owner can ban/kick users, delete messages, or end streams anytime.<br>
                     9. CHANGES: Terms may update. Continued use = acceptance.<br><br>
-
                     <b>MIZO:</b><br>
                     1. KUM: Kum 18+ chauh tan. Sign up chuan 18+ i nih tih i pawm.<br>
                     2. CAMERA & MIC: Live stream nan i camera leh microphone kan hmang ang. I phalna tel lo in record/store theih loh. I duh hunah stop thei.<br>
@@ -202,22 +96,17 @@
                     7. MAWHPHURHNA: Entertainment chauh. Pawisa i hloh pawhin kan mawh lo.<br>
                     8. ENKAWL: Owner in user ban/kick, message delete, stream tihtawp thei.<br>
                     9. THLAK: Dan hi thlak theih. Hman chhunzawm chuan pawm tihna.<br><br>
-
                     By checking, you agree to Terms and consent to camera/mic access.<br>
                     Tick hian Terms i pawm a, camera/mic hman i phal tihna a ni.
                 </div>
-
                 <label class="checkbox-label">
                     <input type="checkbox" id="termsCheck">
                     <span>I am 18+ and I accept Terms. I consent to camera/mic access.<br>
                     Kum 18+ ka ni a, Terms ka pawm. Camera/mic hman ka phal.</span>
                 </label>
-
                 <button class="auth-btn" onclick="signup()">🚀 SIGN UP FREE / INZIAT LUT</button>
                 <span class="switch-auth" onclick="showLogin()">Account i nei tawh em? Login / Already have account?</span>
             </div>
-        </div>
-
         <div id="loginPage" class="hidden">
             <div class="auth-box">
                 <div class="crown">👑</div>
@@ -228,19 +117,16 @@
                 <span class="switch-auth" onclick="showSignup()">Account i la nei lo em? Sign Up / New user?</span>
             </div>
         </div>
-
         <div id="mainApp" class="hidden">
             <div class="user-bar">
                 <div>👤 <b id="displayName">Guest</b></div>
                 <button class="logout-btn" onclick="logout()">Logout / Chhuak</button>
             </div>
-
             <div class="header">
                 <div class="crown">👑</div>
                 <h1>BOSS PK LIVE</h1>
                 <p>Tunge chak zawk? Vote rawh! / Who wins? Vote!</p>
             </div>
-
             <div style="position: relative;">
                 <div class="battle-grid">
                     <div class="video-container">
@@ -259,14 +145,12 @@
                     </div>
                 <div class="vs-badge">VS</div>
             </div>
-
             <div class="stream-controls">
                 <button class="control-btn" onclick="requestPermissions()">📹🎤 Camera & Mic On</button>
                 <button class="control-btn" id="streamBtn" onclick="toggleStream()" style="display:none">🔴 GO LIVE</button>
                 <button class="control-btn danger" id="stopStreamBtn" onclick="stopStream()" style="display:none">⏹️ STOP</button>
                 <p style="font-size: 11px; color: #888; margin-top: 10px;">⚠️ I live chuan mi zawng zawngin an hmu ang / Everyone will see you live</p>
             </div>
-
             <div class="stats">
                 <div class="stat-box">
                     <div class="stat-number" id="bossVotes">0</div>
@@ -281,7 +165,6 @@
                     <div>ONLINE</div>
                 </div>
             </div>
-
             <div class="chat-container">
                 <div class="chat-header">💬 LIVE CHAT</div>
                 <div class="chat-messages" id="chatMessages">
@@ -291,24 +174,18 @@
                     <input class="chat-input" id="chatInput" placeholder="Message type rawh... / Type message..." maxlength="200" onkeypress="if(event.key==='Enter')sendChat()">
                     <button class="chat-send" onclick="sendChat()">SEND</button>
                 </div>
-            </div>
-
             <div class="status" id="serverStatus">⏳ Connecting...</div>
-
             <div class="vote-grid">
                 <button class="vote-btn" onclick="vote('boss')">BOSS 🔥<br><small id="bossTotal">0 Votes</small></button>
                 <button class="vote-btn enemy" onclick="vote('enemy')">ENEMY 💀<br><small id="enemyTotal">0 Votes</small></button>
             </div>
-
             <div class="coins">
                 <h3>💰 I Coins: <span id="myCoins">0</span></h3>
                 <p style="font-size: 12px; margin: 5px 0;">Vote 1 = 10 Coins</p>
-                <button class="free-btn" id="freeBtn" onclick="getFreeCoins()">🎁 +50 FREE COINS</button>
+                <button class="free-btn" id="freeBtn" onclick="getFreeCoins()">🎁 +500 FREE COINS</button>
                 <button class="buy-coins" onclick="showPayment()">💳 BUY COINS - UPI</button>
             </div>
-
             <button onclick="shareWA()" style="background: #25D366; color: white; border: none; padding: 15px; border-radius: 25px; width: 100%; font-weight: bold; margin-top: 10px;">📱 SHARE WHATSAPP</button>
-
             <div class="owner-panel" id="ownerPanel">
                 <h2>👑 OWNER PANEL</h2>
                 <h3>⏳ PENDING PAYMENTS</h3>
@@ -321,15 +198,14 @@
                 <button class="vote-btn enemy" onclick="declareWinner('enemy')" style="width: 100%; margin: 5px 0;">💀 ENEMY WINS</button>
                 <button class="vote-btn" onclick="resetVotes()" style="width: 100%; margin: 5px 0; background: #ff0055;">🔄 Reset Votes</button>
             </div>
-        </div>
-
         <div id="paymentModal" class="modal">
             <div class="modal-content">
                 <h2>💳 BUY COINS / COINS LEI RAWH</h2>
                 <select id="coinPackage" class="input" style="margin-bottom: 15px;">
-                    <option value="100">100 Coins = ₹50</option>
-                    <option value="500">500 Coins = ₹200</option>
-                    <option value="1000">1000 Coins = ₹350</option>
+                    <option value="500">500 Coins = ₹100</option>
+                    <option value="1500">1500 Coins = ₹250</option>
+                    <option value="3000">3000 Coins = ₹450</option>
+                    <option value="7000">7000 Coins = ₹900</option>
                 </select>
                 <p style="margin: 10px 0;">UPI ID ah hian pawisa thawn rawh / Send money to this UPI:</p>
                 <div class="upi-id">8798407843@nyes</div>
@@ -343,7 +219,6 @@
             </div>
         </div>
     </div>
-
 <script>
     const socket = io();
     let sessionId = localStorage.getItem('pk_session') || null;
@@ -352,25 +227,9 @@
     let isOwner = false;
     let localStream = null;
     let isStreaming = false;
-
-    if(sessionId) {
-        socket.emit('verify_session', {session_id: sessionId});
-    } else {
-        showSignup();
-    }
-
-    function showSignup() {
-        document.getElementById('signupPage').classList.remove('hidden');
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('mainApp').classList.add('hidden');
-    }
-
-    function showLogin() {
-        document.getElementById('signupPage').classList.add('hidden');
-        document.getElementById('loginPage').classList.remove('hidden');
-        document.getElementById('mainApp').classList.add('hidden');
-    }
-
+    if(sessionId) { socket.emit('verify_session', {session_id: sessionId}); } else { showSignup(); }
+    function showSignup() { document.getElementById('signupPage').classList.remove('hidden'); document.getElementById('loginPage').classList.add('hidden'); document.getElementById('mainApp').classList.add('hidden'); }
+    function showLogin() { document.getElementById('signupPage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('mainApp').classList.add('hidden'); }
     function signup() {
         if(!document.getElementById('termsCheck').checked) {
             return alert('❌ Terms & Conditions leh Camera/Mic phalna pawm phawt rawh\n❌ Please accept Terms & consent to camera/mic access');
@@ -379,42 +238,55 @@
         const password = document.getElementById('signupPassword').value;
         socket.emit('signup', {username, password});
     }
-
     function login() {
         const username = document.getElementById('loginUsername').value.trim();
         const password = document.getElementById('loginPassword').value;
         socket.emit('login', {username, password});
     }
-
     socket.on('auth_success', (data) => {
         sessionId = data.session_id;
         currentUser = data.username;
         myCoins = data.coins;
         isOwner = data.is_owner;
         localStorage.setItem('pk_session', sessionId);
-
         document.getElementById('signupPage').classList.add('hidden');
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         document.getElementById('displayName').textContent = currentUser;
         document.getElementById('myCoins').textContent = myCoins;
-
-        if(isOwner) {
-            document.getElementById('ownerPanel').style.display = 'block';
-        }
+        if(isOwner) { document.getElementById('ownerPanel').style.display = 'block'; }
         socket.emit('join', {});
     });
-
-    socket.on('auth_error', (data) => {
-        alert('❌ ' + data.msg);
-    });
-
+    socket.on('auth_error', (data) => { alert('❌ ' + data.msg); });
     function logout() {
         localStorage.removeItem('pk_session');
-        if(localStream) {
-            localStream.getTracks().forEach(track => track.stop());
-        }
+        if(localStream) { localStream.getTracks().forEach(track => track.stop()); }
         location.reload();
     }
-
-    async
+    async function requestPermissions() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' }, audio: true });
+            document.getElementById('bossVideo').srcObject = localStream;
+            document.getElementById('streamBtn').style.display = 'inline-block';
+            alert('✅ Camera & Mic permission pek a ni e. GO LIVE hmet la / Camera & Mic allowed. Click GO LIVE');
+        } catch(err) {
+            alert('❌ Camera/Mic permission i pek loh chuan live theih loh.\nBrowser settings → Site Settings → Camera/Microphone → Allow');
+            console.error(err);
+        }
+    }
+    function toggleStream() {
+        if(!isStreaming) {
+            isStreaming = true;
+            document.getElementById('streamBtn').textContent = '🔴 LIVE VEK';
+            document.getElementById('streamBtn').classList.add('active');
+            document.getElementById('stopStreamBtn').style.display = 'inline-block';
+            document.getElementById('bossLiveBadge').style.display = 'block';
+            socket.emit('start_stream', {session_id: sessionId, team: 'boss'});
+        }
+    }
+    function stopStream() {
+        isStreaming = false;
+        document.getElementById('streamBtn').textContent = '🔴 GO LIVE';
+        document.getElementById('streamBtn').classList.remove('active');
+        document.getElementById('stopStreamBtn').style.display = 'none';
+        document.getElementBy
