@@ -1,275 +1,215 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>PK LIVE BATTLE 🎤 - 4 GAMES</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🔥 PK BATTLE V9.0 LIVE</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0a0a; color: white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 15px; }
-      .container { max-width: 500px; margin: 0 auto; }
-      .hidden { display: none!important; }
-      .auth-box { background: #1a1a1a; padding: 30px; border-radius: 20px; margin-top: 50px; border: 2px solid #ff0055; text-align: center; }
-      .auth-input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #0a0a0a; color: white; font-size: 16px; }
-      .auth-btn { background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
-      .switch-auth { color: #00ff88; cursor: pointer; margin-top: 15px; display: block; }
-      .header { background: linear-gradient(135deg, #ff0055, #ff00ff); padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: center; }
-      .crown { font-size: 40px; animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-      .user-bar { background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-      .user-info { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-      .user-pic { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ff0055; object-fit: cover; }
-      .game-section { background: #1a1a1a; padding: 15px; border-radius: 12px; margin: 15px 0; border: 2px solid #FFD700; }
-      .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-      .game-btn { background: linear-gradient(135deg, #333, #555); border: 2px solid #FFD700; color: white; padding: 20px 10px; border-radius: 10px; cursor: pointer; font-weight: bold; }
-      .game-btn:disabled { background: #222; border-color: #444; color: #666; cursor: not-allowed; }
-      .party-section { background: #1a1a1a; padding: 15px; border-radius: 12px; margin: 15px 0; border: 2px solid #ff00ff; }
-      .party-list { max-height: 200px; overflow-y: auto; margin: 10px 0; }
-      .party-room { background: #0a0a0a; padding: 10px; border-radius: 8px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; }
-      .party-btn { background: #ff0055; border: none; color: white; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-      .party-btn.join { background: #00ff88; color: black; }
-      .party-btn.crown { background: #FFD700; color: black; }
-      .party-users { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; }
-      .party-user { background: #333; padding: 5px 10px; border-radius: 15px; font-size: 12px; }
-      .party-user.crown { background: #FFD700; color: black; font-weight: bold; }
-      .live-list { background: #1a1a1a; padding: 15px; border-radius: 12px; margin: 15px 0; }
-      .battle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-      .video-container { position: relative; }
-      .video-box { border-radius: 12px; overflow: hidden; border: 3px solid; box-shadow: 0 0 20px rgba(255,0,85,0.5); aspect-ratio: 9/16; background: #000; }
-      .boss-video { border-color: #ff0055; }
-      .enemy-video { border-color: #00aaff; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-      .live-badge { background: red; color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; position: absolute; top: 8px; left: 8px; z-index: 10; animation: blink 1s infinite; }
-      .streamer-name { position: absolute; bottom: 8px; left: 0; right: 0; background: rgba(0,0,0,0.7); padding: 5px; font-weight: bold; text-align: center; cursor: pointer; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-      .vs-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #FFD700; color: black; padding: 8px 12px; border-radius: 50%; font-weight: bold; font-size: 18px; z-index: 20; border: 3px solid white; }
-      .viewer-coins-bar { background: linear-gradient(135deg, #1a1a1a, #2a2a2a); padding: 12px; border-radius: 10px; margin: 15px 0; text-align: center; border: 2px solid #FFD700; }
-      .stream-controls { background: #1a1a1a; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: center; }
-      .control-btn { background: #333; border: none; color: white; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 13px; }
-      .control-btn.active { background: #00ff88; color: black; }
-      .control-btn.danger { background: #ff0055; }
-      .chat-container { background: #1a1a1a; border-radius: 12px; margin: 15px 0; border: 2px solid #333; height: 300px; display: flex; flex-direction: column; }
-      .chat-header { background: #0a0a0a; padding: 10px; border-radius: 10px 10px 0 0; font-weight: bold; border-bottom: 1px solid #333; }
-      .chat-messages { flex: 1; overflow-y: auto; padding: 10px; text-align: left; }
-      .chat-msg { margin: 8px 0; padding: 8px; background: #0a0a0a; border-radius: 8px; font-size: 13px; word-break: break-word; display: flex; gap: 8px; align-items: start; }
-      .chat-msg.owner { border-left: 3px solid #FFD700; }
-      .chat-pic { width: 25px; height: 25px; border-radius: 50%; flex-shrink: 0; object-fit: cover; }
-      .chat-username { color: #00ff88; font-weight: bold; }
-      .chat-msg.owner .chat-username { color: #FFD700; }
-      .chat-input-box { display: flex; padding: 10px; border-top: 1px solid #333; }
-      .chat-input { flex: 1; padding: 10px; border-radius: 8px 0 0 8px; border: 1px solid #333; background: #0a0a0a; color: white; }
-      .chat-send { background: #ff0055; border: none; color: white; padding: 10px 15px; border-radius: 0 8px 8px 0; cursor: pointer; font-weight: bold; }
-      .stats { display: flex; justify-content: space-around; margin: 15px 0; text-align: center; }
-      .stat-box { background: #1a1a1a; padding: 10px 15px; border-radius: 10px; flex: 1; margin: 0 5px; }
-      .stat-number { font-size: 24px; font-weight: bold; color: #00ff88; }
-      .vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-      .vote-btn { background: linear-gradient(135deg, #ff0055, #ff00ff); border: none; color: white; padding: 20px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-      .vote-btn.enemy { background: linear-gradient(135deg, #0088ff, #00aaff); }
-      .vote-btn:active { transform: scale(0.95); }
-      .coins { background: #1a1a1a; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; }
-      .free-btn { background: #00ff88; color: black; border: none; padding: 12px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-      .free-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
-      .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; padding: 20px; overflow-y: auto; }
-      .modal-content { background: #1a1a1a; padding: 25px; border-radius: 15px; max-width: 400px; margin: 20px auto; border: 2px solid #FFD700; text-align: center; }
-      .profile-pic-large { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #ff0055; margin: 0 auto 15px; object-fit: cover; }
-      .profile-stats { display: flex; justify-content: space-around; margin: 15px 0; }
-      .profile-coins-points { background: #0a0a0a; padding: 12px; border-radius: 10px; margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-      .follow-btn { background: #ff0055; color: white; border: none; padding: 10px 30px; border-radius: 20px; font-weight: bold; cursor: pointer; margin: 10px 0; }
-      .follow-btn.following { background: #333; }
-      .logout-btn { background: #ff0055; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
-      .terms-box { text-align: left; font-size: 11px; color: #888; margin: 15px 0; max-height: 180px; overflow-y: auto; padding: 12px; background: #0a0a0a; border-radius: 8px; border: 1px solid #333; }
-      .terms-box b { color: #FFD700; }
-      .checkbox-label { display: flex; align-items: flex-start; font-size: 12px; margin: 15px 0; text-align: left; }
-      .checkbox-label input { margin-right: 10px; margin-top: 2px; width: 18px; height: 18px; flex-shrink: 0; }
-      .input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #333; background: #0a0a0a; color: white; }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+        body{background:#0a0e27;color:#fff;height:100vh;overflow:hidden}
+  .auth-screen{position:fixed;inset:0;background:rgba(10,14,39,0.98);display:flex;align-items:center;justify-content:center;z-index:1000}
+  .auth-box{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);padding:30px;border-radius:20px;width:90%;max-width:350px}
+  .auth-title{font-size:24px;font-weight:bold;text-align:center;margin-bottom:20px}
+  .auth-input{width:100%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.3);color:#fff;padding:12px;border-radius:10px;margin-bottom:12px;font-size:16px}
+  .auth-btn{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);border:none;color:#fff;padding:12px;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;width:100%;margin-bottom:8px}
+  .auth-toggle{text-align:center;margin-top:12px;color:#aaa;cursor:pointer;font-size:14px}
+  .hidden{display:none}
+  .app{height:100vh;display:flex;flex-direction:column}
+  .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+  .logo{font-size:16px;font-weight:bold}
+  .stats{display:flex;gap:6px;align-items:center}
+  .stat{background:rgba(255,255,255,0.2);padding:4px 8px;border-radius:12px;font-weight:bold;font-size:11px}
+  .online{background:#10b981;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+  .nav-tabs{display:flex;background:rgba(255,255,255,0.05);border-bottom:2px solid rgba(102,126,234,0.3);flex-shrink:0;overflow-x:auto}
+  .nav-tab{flex:1;min-width:55px;background:none;border:none;color:#aaa;padding:10px 5px;font-weight:bold;font-size:10px;cursor:pointer;border-bottom:3px solid transparent}
+  .nav-tab.active{color:#667eea;border-bottom-color:#667eea;background:rgba(102,126,234,0.1)}
+  .content{flex:1;overflow-y:auto;padding:8px}
+  .tab-panel{display:none;height:100%}
+  .tab-panel.active{display:block}
+  .video-container{position:relative;background:#000;border-radius:12px;overflow:hidden;margin-bottom:8px;height:220px}
+  .video-stream{width:100%;height:100%;object-fit:cover}
+  .live-badge{position:absolute;top:10px;left:10px;background:#ef4444;padding:4px 10px;border-radius:15px;font-size:11px;font-weight:bold;animation:pulse 2s infinite}
+  .viewer-count{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.7);padding:4px 10px;border-radius:15px;font-size:11px}
+  .video-controls{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:10px}
+  .video-btn{background:rgba(255,255,255,0.2);border:none;color:#fff;padding:10px;border-radius:50%;width:45px;height:45px;cursor:pointer;backdrop-filter:blur(10px);font-size:18px}
+  .video-btn.active{background:#ef4444}
+  .live-list{max-height:150px;overflow-y:auto;margin-bottom:8px}
+  .live-item{background:rgba(255,255,255,0.1);padding:8px;border-radius:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px;font-size:11px}
+  .live-avatar{width:35px;height:35px;border-radius:50%;border:2px solid #ef4444;object-fit:cover}
+  .gift-panel{position:fixed;bottom:70px;left:10px;right:10px;background:rgba(0,0,0,0.9);padding:12px;border-radius:15px;z-index:999;display:none;grid-template-columns:repeat(3,1fr);gap:8px}
+  .gift-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:none;color:#fff;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer;font-size:11px}
+  .battle-compact{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;margin-bottom:8px}
+  .player-mini{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);padding:10px;border-radius:10px;text-align:center}
+  .player-name-mini{font-size:11px;font-weight:bold;margin-bottom:3px}
+  .votes-mini{font-size:20px;font-weight:bold;color:#ffd700}
+  .vote-btn-mini{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);border:none;color:#fff;padding:6px;border-radius:6px;font-size:10px;font-weight:bold;cursor:pointer;width:100%;margin-top:4px}
+  .vs-mini{font-size:16px;font-weight:bold;color:#667eea;align-self:center}
+  .games-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+  .game-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:none;color:#fff;padding:8px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:10px}
+  .chat-compact{background:rgba(255,255,255,0.05);border-radius:8px;padding:6px;height:calc(100% - 10px);display:flex;flex-direction:column}
+  .chat-msgs{flex:1;overflow-y:auto;margin-bottom:6px;padding:4px;font-size:11px}
+  .chat-msg{padding:5px;background:rgba(255,255,255,0.1);border-radius:5px;margin-bottom:4px}
+  .chat-user{font-weight:bold;color:#667eea;font-size:9px}
+  .chat-input-row{display:flex;gap:4px}
+  .chat-input{flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(102,126,234,0.5);color:#fff;padding:8px;border-radius:8px;font-size:12px}
+  .send-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:none;color:#fff;padding:8px 12px;border-radius:8px;font-weight:bold;cursor:pointer;font-size:11px}
+  .profile-compact{background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;margin-bottom:10px}
+  .profile-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .profile-pic-sm{width:50px;height:50px;border-radius:50%;border:2px solid #667eea;object-fit:cover}
+  .profile-stats-row{display:flex;justify-content:space-around;text-align:center}
+  .profile-stat-num{font-size:18px;font-weight:bold;color:#667eea}
+  .profile-stat-label{font-size:9px;color:#aaa}
+  .party-room-sm{background:rgba(255,255,255,0.1);padding:10px;border-radius:8px;margin-bottom:8px;font-size:11px}
+  .leaderboard-item-sm{display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.1);border-radius:8px;margin-bottom:6px;font-size:11px}
+  .leaderboard-rank{font-size:16px;font-weight:bold;color:#ffd700;width:20px}
+  .leaderboard-pic{width:30px;height:30px;border-radius:50%;object-fit:cover}
+  .notification{position:fixed;top:60px;right:10px;background:linear-gradient(135deg,#10b981 0%,#059669 100%);padding:10px 15px;border-radius:8px;box-shadow:0 5px 15px rgba(16,185,129,0.4);z-index:2000;font-size:12px;animation:slideIn 0.3s}
+        @keyframes slideIn{from{transform:translateX(300px)}to{transform:translateX(0)}}
+  .notification.error{background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%)}
+  .gift-animation{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px;animation:giftFly 2s;z-index:3000;pointer-events:none}
+        @keyframes giftFly{0%{transform:translate(-50%,100px);opacity:0}20%{opacity:1}80%{opacity:1}100%{transform:translate(-50%,-200px);opacity:0}}
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="signupPage">
-            <div class="auth-box">
-                <div class="crown">👑</div>
-                <h1>SIGN UP / INZIAT LUT</h1>
-                <input class="auth-input" id="signupUsername" placeholder="Username / Hming" maxlength="15">
-                <input class="auth-input" id="signupPassword" type="password" placeholder="Password / Thuruk">
-                <div class="terms-box">
-                    <b>TERMS & CONDITIONS / DAN LEH DUN</b><br><br>
-                    1. AGE: 18+ only.<br>
-                    2. CAMERA & MIC: Live stream nan kan hmang ang.<br>
-                    3. PROHIBITED: Nudity, violence khap.<br>
-                    4. VIRTUAL GIFTS: Coins have NO CASH VALUE.<br>
-                    5. NO GAMBLING: Entertainment only.<br><br>
-                    By checking, you agree to Terms.
-                </div>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="termsCheck">
-                    <span>I am 18+ and I accept Terms.</span>
-                </label>
-                <button class="auth-btn" onclick="signup()">🚀 SIGN UP FREE</button>
-                <span class="switch-auth" onclick="showLogin()">Account i nei tawh em? Login</span>
-            </div>
-        </div>
-
-        <div id="loginPage" class="hidden">
-            <div class="auth-box">
-                <div class="crown">👑</div>
-                <h1>LOGIN / LUT RAWH</h1>
-                <input class="auth-input" id="loginUsername" placeholder="Username / Hming">
-                <input class="auth-input" id="loginPassword" type="password" placeholder="Password / Thuruk">
-                <button class="auth-btn" onclick="login()">🔓 LOGIN</button>
-                <span class="switch-auth" onclick="showSignup()">Account i la nei lo em? Sign Up</span>
-            </div>
-        </div>
-
-        <div id="mainApp" class="hidden">
-            <div class="user-bar">
-                <div class="user-info" onclick="showMyProfile()">
-                    <img class="user-pic" id="myProfilePic" src="https://i.imgur.com/8Km9tLL.png">
-                    <div>
-                        <div><b id="displayName">Guest</b></div>
-                        <div style="font-size: 11px; color: #888;"><span id="myFollowers">0</span> followers</div>
-                    </div>
-                </div>
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
-
-            <div class="header">
-                <div class="crown">👑</div>
-                <h1>PK LIVE BATTLE 🎤</h1>
-                <p>Support your favorite streamer! ❤️</p>
-            </div>
-
-            <div class="game-section">
-                <h3>🎮 4 GAMES - POINTS HLawh Rawh!</h3>
-                <div class="game-grid">
-                    <button class="game-btn" onclick="playGame('spin')">🎰 SPIN<br><small>20 Coins</small></button>
-                    <button class="game-btn" onclick="playGame('flip')">🪙 COIN FLIP<br><small>10 Coins</small></button>
-                    <button class="game-btn" onclick="playGame('box')">🎁 LUCKY BOX<br><small>30 Coins</small></button>
-                    <button class="game-btn" onclick="playGame('guess')">🔢 GUESS<br><small>15 Coins</small></button>
-                </div>
-            </div>
-
-            <div class="party-section">
-                <h3>🎉 PARTY ROOM - 15 Users + Crown Seat</h3>
-                <button class="party-btn" onclick="createParty()">➕ Create Party</button>
-                <div class="party-list" id="partyList"></div>
-                <div id="currentParty" class="hidden">
-                    <h4 id="partyName"></h4>
-                    <div class="party-users" id="partyUsers"></div>
-                    <button class="party-btn crown" id="crownBtn" onclick="sitCrown()">👑 Sit Crown Seat +500 Coins</button>
-                    <button class="party-btn danger" onclick="leaveParty()">Leave Party</button>
-                </div>
-            </div>
-
-            <div class="live-list">
-                <h3 style="margin-bottom: 10px;">🔴 LIVE NOW</h3>
-                <div id="liveStreamersList">
-                    <div style="text-align: center; color: #888; padding: 20px;">Tumah an live lo / No one live</div>
-                </div>
-            </div>
-
-            <div style="position: relative;">
-                <div class="battle-grid">
-                    <div class="video-container">
-                        <div class="live-badge" id="bossLiveBadge" style="display:none">🔴 LIVE</div>
-                        <div class="video-box boss-video">
-                            <video id="bossVideo" autoplay playsinline muted></video>
-                        </div>
-                        <div class="streamer-name" id="bossName" onclick="viewProfile(this.textContent)">BOSS 🔥</div>
-                    </div>
-                    <div class="video-container">
-                        <div class="live-badge" id="enemyLiveBadge" style="display:none">🔴 LIVE</div>
-                        <div class="video-box enemy-video">
-                            <video id="enemyVideo" autoplay playsinline muted></video>
-                        </div>
-                        <div class="streamer-name" id="enemyName" onclick="viewProfile(this.textContent)">STREAMER 2 💀</div>
-                    </div>
-                <div class="vs-badge">VS</div>
-            </div>
-
-            <div class="viewer-coins-bar">
-                <div style="font-size: 14px; color: #888;">I COINS LAI MEK</div>
-                <div style="font-size: 32px; font-weight: bold; color: #FFD700;">💰 <span id="viewerCoins">0</span></div>
-                <div style="font-size: 14px; color: #888;">⭐ Points: <span id="viewerPoints">0</span></div>
-                <div style="font-size: 11px; color: #888; margin-top: 5px;">Gift pe turin Vote hmet rawh 👇</div>
-            </div>
-
-            <div class="stream-controls">
-                <button class="control-btn" onclick="requestPermissions()">📹🎤 Camera & Mic On</button>
-                <button class="control-btn" id="streamBtn" onclick="toggleStream()" style="display:none">🔴 GO LIVE</button>
-                <button class="control-btn danger" id="stopStreamBtn" onclick="stopStream()" style="display:none">⏹️ STOP</button>
-            </div>
-
-            <div class="chat-container">
-                <div class="chat-header">💬 LIVE CHAT</div>
-                <div class="chat-messages" id="chatMessages">
-                    <div style="text-align: center; color: #888; padding: 20px;">Welcome to PK Battle! 👋</div>
-                </div>
-                <div class="chat-input-box">
-                    <input class="chat-input" id="chatInput" placeholder="Chat message..." maxlength="200">
-                    <button class="chat-send" onclick="sendChat()">SEND</button>
-                </div>
-            </div>
-
-            <div class="stats">
-                <div class="stat-box">
-                    <div class="stat-number" id="bossVotes">0</div>
-                    <div>Gifts 🎁</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number" id="enemyVotes">0</div>
-                    <div>Gifts 🎁</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number" id="onlineCount">0</div>
-                    <div>Online 👥</div>
-                </div>
-            </div>
-
-            <div class="vote-grid">
-                <button class="vote-btn" onclick="vote('boss')">💖 VOTE BOSS</button>
-                <button class="vote-btn enemy" onclick="vote('enemy')">💙 VOTE ENEMY</button>
-            </div>
-
-            <div class="coins">
-                <div style="font-size: 14px; color: #888;">FREE COINS - 24 HOURS KHAT</div>
-                <div style="font-size: 28px; font-weight: bold; color: #FFD700;">💰 <span id="coins">0</span></div>
-                <button class="free-btn" id="freeBtn" onclick="getFreeCoins()">+500 FREE COINS</button>
-            </div>
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-box">
+            <div class="auth-title">🔥 PK BATTLE V9.0 LIVE</div>
+            <input type="text" class="auth-input" id="authUsername" placeholder="Username">
+            <input type="password" class="auth-input" id="authPassword" placeholder="Password">
+            <button class="auth-btn" id="authBtn">LOGIN</button>
+            <div class="auth-toggle" id="authToggle">Don't have account? Sign up</div>
+            <div id="authError" style="color:#ef4444;text-align:center;margin-top:8px;font-size:12px"></div>
         </div>
     </div>
 
-    <div class="modal" id="profileModal">
-        <div class="modal-content">
-            <button style="float:right;background:#333;border:none;color:white;padding:5px 10px;border-radius:5px;cursor:pointer;" onclick="closeProfile()">✕</button>
-            <img class="profile-pic-large" id="modalProfilePic" src="https://i.imgur.com/8Km9tLL.png">
-            <h2 id="modalUsername">Username</h2>
-            <p id="modalBio" style="color:#888;margin:10px 0;">Bio</p>
-            <div class="profile-coins-points">
-                <div>
-                    <div style="font-size:20px;font-weight:bold;color:#FFD700;">💰 <span id="modalCoins">0</span></div>
-                    <div style="font-size:11px;color:#888;">Coins</div>
+    <div class="app hidden" id="mainApp">
+        <div class="header">
+            <div class="logo">🔥 PK BATTLE LIVE</div>
+            <div class="stats">
+                <div class="stat online">🟢 <span id="onlineCount">0</span></div>
+                <div class="stat">💰 <span id="userCoins">0</span></div>
+                <div class="stat">⭐ <span id="userPoints">0</span></div>
+                <div class="stat" id="userName" onclick="showTabDirect('profile')">👤</div>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('live')">📹 Live</button>
+            <button class="nav-tab" onclick="showTab('battle')">⚔️ Battle</button>
+            <button class="nav-tab" onclick="showTab('games')">🎮 Games</button>
+            <button class="nav-tab" onclick="showTab('party')">🎉 Party</button>
+            <button class="nav-tab" onclick="showTab('chat')">💬 Chat</button>
+            <button class="nav-tab" onclick="showTab('rank')">🏆 Rank</button>
+        </div>
+
+        <div class="content">
+            <div class="tab-panel active" id="liveTab">
+                <div class="video-container">
+                    <video id="localVideo" class="video-stream hidden" autoplay muted playsinline></video>
+                    <video id="remoteVideo" class="video-stream hidden" autoplay playsinline></video>
+                    <div id="videoPlaceholder" style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:10px">
+                        <div style="font-size:40px">📹</div>
+                        <div style="font-size:12px;color:#aaa">Go Live or Join Stream</div>
+                    </div>
+                    <div class="live-badge hidden" id="liveBadge">🔴 LIVE</div>
+                    <div class="viewer-count hidden" id="viewerCount">👀 0</div>
+                    <div class="video-controls">
+                        <button class="video-btn" id="goLiveBtn" onclick="toggleLive()">📹</button>
+                        <button class="video-btn hidden" id="giftBtn" onclick="toggleGiftPanel()">🎁</button>
+                        <button class="video-btn hidden" id="leaveLiveBtn" onclick="leaveLive()">❌</button>
+                    </div>
                 </div>
-                <div>
-                    <div style="font-size:20px;font-weight:bold;color:#FFD700;">⭐ <span id="modalPoints">0</span></div>
-                    <div style="font-size:11px;color:#888;">Points</div>
+                <div class="live-list" id="liveList"></div>
+            </div>
+
+            <div class="gift-panel" id="giftPanel">
+                <button class="gift-btn" onclick="sendGift('rose', 10)">🌹 Rose<br>10 Coins</button>
+                <button class="gift-btn" onclick="sendGift('diamond', 100)">💎 Diamond<br>100 Coins</button>
+                <button class="gift-btn" onclick="sendGift('crown', 500)">👑 Crown<br>500 Coins</button>
+            </div>
+
+            <div class="tab-panel" id="battleTab">
+                <div class="battle-compact">
+                    <div class="player-mini">
+                        <div class="player-name-mini">👑 BOSS</div>
+                        <div class="votes-mini" id="bossVotes">0</div>
+                        <button class="vote-btn-mini" onclick="vote('boss')">🔥 VOTE (10)</button>
+                    </div>
+                    <div class="vs-mini">VS</div>
+                    <div class="player-mini">
+                        <div class="player-name-mini">😈 ENEMY</div>
+                        <div class="votes-mini" id="enemyVotes">0</div>
+                        <button class="vote-btn-mini" onclick="vote('enemy')">⚡ VOTE (10)</button>
+                    </div>
+                <button class="game-btn" style="width:100%" onclick="claimFreeCoins()">🎁 CLAIM 500 FREE COINS</button>
+            </div>
+
+            <div class="tab-panel" id="gamesTab">
+                <div class="games-grid">
+                    <button class="game-btn" onclick="spinWheel()">🎡 SPIN (20)</button>
+                    <button class="game-btn" onclick="coinFlip()">🪙 FLIP (10)</button>
+                    <button class="game-btn" onclick="luckyBox()">🎁 BOX (30)</button>
+                    <button class="game-btn" onclick="numberGuess()">🎯 GUESS (15)</button>
                 </div>
-            <div class="profile-stats">
-                <div>
-                    <div style="font-size:20px;font-weight:bold;" id="modalFollowers">0</div>
-                    <div style="font-size:12px;color:#888;">Followers</div>
-                </div>
-                <div>
-                    <div style="font-size:20px;font-weight:bold;" id="modalFollowing">0</div>
-                    <div style="font-size:12px;color:#888;">Following</div>
+                <div class="profile-compact">
+                    <div class="profile-row">
+                        <img src="https://i.imgur.com/8Km9tLL.png" class="profile-pic-sm" id="myProfilePic">
+                        <div style="flex:1">
+                            <div style="font-weight:bold;font-size:14px" id="myProfileName">Guest</div>
+                            <div style="font-size:10px;color:#aaa" id="myProfileBio">PK Battle Player</div>
+                        </div>
+                        <button class="game-btn" style="padding:6px 10px" onclick="showEditProfile()">✏️</button>
+                    </div>
+                    <div class="profile-stats-row">
+                        <div><div class="profile-stat-num" id="myFollowers">0</div><div class="profile-stat-label">Followers</div></div>
+                        <div><div class="profile-stat-num" id="myFollowing">0</div><div class="profile-stat-label">Following</div></div>
+                        <div><div class="profile-stat-num" id="myPointsDisplay">0</div><div class="profile-stat-label">Points</div></div>
+                        <div><div class="profile-stat-num" id="myGifts">0</div><div class="profile-stat-label">Gifts</div></div>
+                    </div>
                 </div>
             </div>
-            <button class="follow-btn" id="followBtn" onclick="toggleFollow()">+ Follow</button>
-            <div id="editProfileSection" class="hidden">
-                <input class="input" id="editBio" placeholder="Bio" maxlength="100">
-                <input class="input" id="editProfilePic" placeholder="Profile Pic URL">
-                <button class="follow-btn" onclick="saveProfile()">Save Profile</button>
+
+            <div class="tab-panel" id="partyTab">
+                <button class="game-btn" style="width:100%;margin-bottom:10px" onclick="createParty()">➕ Create Party Room</button>
+                <div id="partyRoomsList"></div>
+            </div>
+
+            <div class="tab-panel" id="chatTab">
+                <div class="chat-compact">
+                    <div class="chat-msgs" id="chatMessages"></div>
+                    <div class="chat-input-row">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Message...">
+                        <button class="send-btn" onclick="sendChat()">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="rankTab">
+                <div style="display:flex;gap:8px;margin-bottom:10px">
+                    <button class="game-btn" style="flex:1" onclick="switchRank('points')">⭐ Points</button>
+                    <button class="game-btn" style="flex:1" onclick="switchRank('coins')">💰 Coins</button>
+                </div>
+                <div id="pointsRank"></div>
+                <div id="coinsRank" class="hidden"></div>
+            </div>
+
+            <div class="tab-panel" id="profileTab">
+                <div class="profile-compact">
+                    <div style="text-align:center;margin-bottom:15px">
+                        <img src="https://i.imgur.com/8Km9tLL.png" style="width:80px;height:80px;border-radius:50%;border:3px solid #667eea" id="profileViewPic">
+                        <div style="font-size:18px;font-weight:bold;margin-top:8px" id="profileViewName">Guest</div>
+                        <div style="font-size:11px;color:#aaa;margin-top:4px" id="profileViewBio">PK Battle Player</div>
+                    </div>
+                    <div class="profile-stats-row" style="margin-bottom:15px">
+                        <div><div class="profile-stat-num" id="profileViewFollowers">0</div><div class="profile-stat-label">Followers</div></div>
+                        <div><div class="profile-stat-num" id="profileViewFollowing">0</div><div class="profile-stat-label">Following</div></div>
+                        <div><div class="profile-stat-num" id="profileViewPoints">0</div><div class="profile-stat-label">Points</div></div>
+                        <div><div class="profile-stat-num" id="profileViewGifts">0</div><div class="profile-stat-label">Gifts</div></div>
+                    </div>
+                    <button class="game-btn" style="width:100%" id="followBtn" onclick="toggleFollow()">Follow</button>
+                </div>
             </div>
         </div>
     </div>
@@ -277,272 +217,489 @@
     <script>
         const socket = io();
         let currentUser = null;
-        let isOwner = false;
+        let currentProfile = null;
+        let sessionId = localStorage.getItem('sessionId');
+        let currentViewProfile = null;
         let localStream = null;
-        let currentProfileUser = null;
-        let currentPartyId = null;
+        let peerConnections = {};
+        let isLive = false;
+        let currentLiveStreamer = null;
 
-        function checkSession() {
-            const sessionId = localStorage.getItem('session_id');
-            if (sessionId) {
-                socket.emit('verify_session', { session_id: sessionId });
-            }
-        }
-
-        checkSession();
-
-        function showSignup() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('signupPage').classList.remove('hidden');
-        }
-
-        function showLogin() {
-            document.getElementById('signupPage').classList.add('hidden');
-            document.getElementById('loginPage').classList.remove('hidden');
-        }
-
-        function signup() {
-            const username = document.getElementById('signupUsername').value.trim();
-            const password = document.getElementById('signupPassword').value;
-            const terms = document.getElementById('termsCheck').checked;
-            if (!terms) return alert('Terms accept phawt rawh');
-            if (!username || !password) return alert('Username leh Password dah rawh');
-            socket.emit('signup', { username, password });
-        }
-
-        function login() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            if (!username || !password) return alert('Username leh Password dah rawh');
-            socket.emit('login', { username, password });
-        }
-
-        function logout() {
-            localStorage.removeItem('session_id');
-            location.reload();
-        }
+        if(sessionId) socket.emit('verify_session', {session_id: sessionId});
 
         socket.on('auth_success', (data) => {
             currentUser = data.username;
-            isOwner = data.is_owner;
-            localStorage.setItem('session_id', data.session_id);
-            document.getElementById('signupPage').classList.add('hidden');
-            document.getElementById('loginPage').classList.add('hidden');
+            currentProfile = data.profile;
+            sessionId = data.session_id;
+            localStorage.setItem('sessionId', sessionId);
+            document.getElementById('authScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('displayName').textContent = currentUser + (isOwner ? ' 👑' : '');
-            document.getElementById('viewerCoins').textContent = data.coins;
-            document.getElementById('viewerPoints').textContent = data.profile.points;
-            document.getElementById('coins').textContent = data.coins;
-            document.getElementById('myProfilePic').src = data.profile.profile_pic;
-            document.getElementById('myFollowers').textContent = data.profile.followers;
+            updateUserInfo(data);
+            showNotification('✅ Login Success!');
             socket.emit('get_party_rooms');
+            socket.emit('get_leaderboard', {});
         });
 
         socket.on('auth_error', (data) => {
-            alert(data.msg);
-        });
-
-        socket.on('coins_update', (data) => {
-            document.getElementById('coins').textContent = data.coins;
-            document.getElementById('viewerCoins').textContent = data.coins;
+            document.getElementById('authError').textContent = data.msg;
         });
 
         socket.on('online_update', (data) => {
             document.getElementById('onlineCount').textContent = data.count;
         });
 
-        function playGame(game) {
-            if (game === 'spin') {
-                socket.emit('spin_wheel', { username: currentUser });
-            } else if (game === 'flip') {
-                const choice = prompt('HEADS or TAILS?').toLowerCase();
-                if (choice === 'heads' || choice === 'tails') {
-                    socket.emit('coin_flip', { username: currentUser, choice });
-                }
-            } else if (game === 'box') {
-                socket.emit('lucky_box', { username: currentUser });
-            } else if (game === 'guess') {
-                const guess = prompt('Guess number 1-10:');
-                if (guess && !isNaN(guess) && guess >= 1 && guess <= 10) {
-                    socket.emit('number_guess', { username: currentUser, guess: parseInt(guess) });
-                }
+        socket.on('vote_update', (data) => {
+            document.getElementById('bossVotes').textContent = data.boss;
+            document.getElementById('enemyVotes').textContent = data.enemy;
+        });
+
+        socket.on('coins_update', (data) => {
+            document.getElementById('userCoins').textContent = data.coins;
+            document.getElementById('userPoints').textContent = data.points;
+            document.getElementById('myPointsDisplay').textContent = data.points;
+            if(currentProfile){
+                currentProfile.coins = data.coins;
+                currentProfile.points = data.points;
             }
-        }
+        });
+
+        socket.on('live_update', (data) => {
+            updateLiveList();
+            if(data.status === 'live' && data.username === currentUser){
+                document.getElementById('liveBadge').classList.remove('hidden');
+                document.getElementById('viewerCount').classList.remove('hidden');
+                document.getElementById('giftBtn').classList.remove('hidden');
+                document.getElementById('leaveLiveBtn').classList.remove('hidden');
+            }else if(data.status === 'offline' && data.username === currentUser){
+                stopLive();
+            }
+        });
+
+        socket.on('live_viewer_count', (data) => {
+            if(data.username === currentUser || data.username === currentLiveStreamer){
+                document.getElementById('viewerCount').textContent = `👀 ${data.viewers}`;
+            }
+        });
+
+        socket.on('live_streamers_list', (data) => {
+            renderLiveList(data);
+        });
+
+        socket.on('live_started', (data) => {
+            showNotification(`🔴 ${data.username} is LIVE!`);
+        });
+
+        socket.on('webrtc_offer', async (data) => {
+            if(!peerConnections[data.from]){
+                peerConnections[data.from] = createPeerConnection(data.from);
+            }
+            await peerConnections[data.from].setRemoteDescription(new RTCSessionDescription(data.offer));
+            const answer = await peerConnections[data.from].createAnswer();
+            await peerConnections[data.from].setLocalDescription(answer);
+            socket.emit('webrtc_answer', {to: data.from, answer: answer});
+        });
+
+        socket.on('webrtc_answer', async (data) => {
+            if(peerConnections[data.from]){
+                await peerConnections[data.from].setRemoteDescription(new RTCSessionDescription(data.answer));
+            }
+        });
+
+        socket.on('webrtc_ice_candidate', async (data) => {
+            if(peerConnections[data.from]){
+                await peerConnections[data.from].addIceCandidate(new RTCIceCandidate(data.candidate));
+            }
+        });
+
+        socket.on('gift_sent', (data) => {
+            showGiftAnimation(data.gift_type);
+            showNotification(`${data.sender} sent ${data.gift_type} to ${data.receiver}!`);
+        });
+
+        socket.on('gift_error', (data) => {
+            showNotification(data.msg, true);
+        });
+
+        socket.on('chat_message', (data) => {
+            const chatMessages = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-msg';
+            msgDiv.innerHTML = `<div class="chat-user">${data.username}</div><div>${data.msg}</div>`;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
 
         socket.on('game_result', (data) => {
-            if (data.success) {
-                alert(data.msg);
-                document.getElementById('viewerCoins').textContent = data.new_coins;
-                document.getElementById('viewerPoints').textContent = data.new_points;
-                document.getElementById('coins').textContent = data.new_coins;
-            } else {
-                alert(data.msg);
+            showNotification(data.msg,!data.success);
+            if(data.success && data.new_coins!== undefined){
+                document.getElementById('userCoins').textContent = data.new_coins;
+                document.getElementById('userPoints').textContent = data.new_points;
+                document.getElementById('myPointsDisplay').textContent = data.new_points;
             }
         });
 
-        function createParty() {
-            const roomName = prompt('Party Room Name:');
-            if (roomName) {
-                socket.emit('create_party', { username: currentUser, room_name: roomName });
+        socket.on('profile_data', (data) => {
+            currentViewProfile = data.username;
+            document.getElementById('profileViewPic').src = data.profile_pic;
+            document.getElementById('profileViewName').textContent = data.username;
+            document.getElementById('profileViewBio').textContent = data.bio;
+            document.getElementById('profileViewFollowers').textContent = data.followers;
+            document.getElementById('profileViewFollowing').textContent = data.following;
+            document.getElementById('profileViewPoints').textContent = data.points;
+            document.getElementById('profileViewGifts').textContent = data.total_gifts;
+            const followBtn = document.getElementById('followBtn');
+            if(data.is_self){
+                followBtn.textContent = '✏️ Edit Profile';
+                followBtn.onclick = showEditProfile;
+            }else{
+                followBtn.textContent = data.is_following? '✓ Following' : 'Follow';
+                followBtn.onclick = () => toggleFollow(data.username);
             }
-        }
+            showTabDirect('profile');
+        });
 
-        function joinParty(roomId) {
-            socket.emit('join_party', { username: currentUser, room_id: roomId });
-        }
-
-        function leaveParty() {
-            socket.emit('leave_party', { username: currentUser, room_id: currentPartyId });
-            currentPartyId = null;
-            document.getElementById('currentParty').classList.add('hidden');
-        }
-
-        function sitCrown() {
-            socket.emit('sit_crown_seat', { username: currentUser, room_id: currentPartyId });
-        }
+        socket.on('party_rooms_list', (data) => {
+            renderPartyRooms(data);
+        });
 
         socket.on('party_created', (data) => {
-            currentPartyId = data.room_id;
-            document.getElementById('currentParty').classList.remove('hidden');
-            document.getElementById('partyName').textContent = data.room_name;
-            updatePartyUsers(data.users, data.crown_seat);
-        });
-
-        socket.on('party_update', (data) => {
-            if (data.room_id === currentPartyId) {
-                updatePartyUsers(data.users, data.crown_seat);
-            }
+            showNotification(`🎉 Party "${data.room_name}" created!`);
             socket.emit('get_party_rooms');
         });
 
-        socket.on('party_rooms_list', (rooms) => {
-            const list = document.getElementById('partyList');
-            if (rooms.length === 0) {
-                list.innerHTML = '<div style="text-align:center;color:#888;padding:20px;">Party Room awm lo</div>';
-                return;
-            }
-            list.innerHTML = '';
-            rooms.forEach(room => {
-                const div = document.createElement('div');
-                div.className = 'party-room';
-                div.innerHTML = `
-                    <div>
-                        <b>${room.name}</b> <small>(${room.users}/${room.max})</small>
-                        ${room.crown_taken ? '👑' : ''}
-                    </div>
-                    <button class="party-btn join" onclick="joinParty('${room.room_id}')">Join</button>
-                `;
-                list.appendChild(div);
-            });
-        });
-
-        socket.on('party_notification', (data) => {
-            alert(data.msg);
+        socket.on('party_update', (data) => {
+            socket.emit('get_party_rooms');
         });
 
         socket.on('party_ended', (data) => {
-            alert(data.msg);
-            if (data.room_id === currentPartyId) {
-                currentPartyId = null;
-                document.getElementById('currentParty').classList.add('hidden');
-            }
+            showNotification(data.msg);
+            socket.emit('get_party_rooms');
         });
 
         socket.on('party_error', (data) => {
-            alert(data.msg);
+            showNotification(data.msg, true);
         });
 
-        function updatePartyUsers(users, crownSeat) {
-            const div = document.getElementById('partyUsers');
-            div.innerHTML = '';
-            users.forEach(user => {
-                const span = document.createElement('span');
-                span.className = 'party-user' + (user === crownSeat ? ' crown' : '');
-                span.textContent = user + (user === crownSeat ? ' 👑' : '');
-                div.appendChild(span);
+        socket.on('party_notification', (data) => {
+            showNotification(data.msg);
+        });
+
+        socket.on('leaderboard_data', (data) => {
+            renderLeaderboard(data);
+        });
+
+        function updateUserInfo(data){
+            document.getElementById('userName').textContent = '👤 ' + data.username;
+            document.getElementById('userCoins').textContent = data.coins;
+            document.getElementById('userPoints').textContent = data.profile.points;
+            document.getElementById('myProfileName').textContent = data.username;
+            document.getElementById('myProfileBio').textContent = data.profile.bio;
+            document.getElementById('myProfilePic').src = data.profile.profile_pic;
+            document.getElementById('myFollowers').textContent = data.profile.followers;
+            document.getElementById('myFollowing').textContent = data.profile.following;
+            document.getElementById('myPointsDisplay').textContent = data.profile.points;
+            document.getElementById('myGifts').textContent = data.profile.total_gifts;
+        }
+
+        function showNotification(msg, isError=false){
+            const notif = document.createElement('div');
+            notif.className = 'notification' + (isError? ' error' : '');
+            notif.textContent = msg;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        function showGiftAnimation(giftType){
+            const emojis = {rose: '🌹', diamond: '💎', crown: '👑'};
+            const emoji = emojis[giftType] || '🎁';
+            const anim = document.createElement('div');
+            anim.className = 'gift-animation';
+            anim.textContent = emoji;
+            document.body.appendChild(anim);
+            setTimeout(() => anim.remove(), 2000);
+        }
+
+        document.getElementById('authBtn').onclick = () => {
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const isSignup = document.getElementById('authBtn').textContent === 'SIGN UP';
+            socket.emit(isSignup? 'signup' : 'login', {username, password});
+        };
+
+        document.getElementById('authToggle').onclick = () => {
+            const btn = document.getElementById('authBtn');
+            const toggle = document.getElementById('authToggle');
+            if(btn.textContent === 'LOGIN'){
+                btn.textContent = 'SIGN UP';
+                toggle.textContent = 'Already have account? Login';
+            }else{
+                btn.textContent = 'LOGIN';
+                toggle.textContent = "Don't have account? Sign up";
+            }
+        };
+
+        function showTab(tab){
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        function showTabDirect(tab){
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+            document.querySelectorAll('.nav-tab').forEach(t => {
+                if(t.onclick.toString().includes(tab)) t.classList.add('active');
             });
-            document.getElementById('crownBtn').style.display = crownSeat ? 'none' : 'inline-block';
         }
 
-        function showMyProfile() {
-            viewProfile(currentUser);
-            document.getElementById('editProfileSection').classList.remove('hidden');
-        }
-
-        function viewProfile(username) {
-            currentProfileUser = username;
-            socket.emit('get_profile', { username });
-        }
-
-        socket.on('profile_data', (data) => {
-            document.getElementById('modalUsername').textContent = data.username;
-            document.getElementById('modalBio').textContent = data.bio;
-            document.getElementById('modalProfilePic').src = data.profile_pic;
-            document.getElementById('modalCoins').textContent = data.coins;
-            document.getElementById('modalPoints').textContent = data.points;
-            document.getElementById('modalFollowers').textContent = data.followers;
-            document.getElementById('modalFollowing').textContent = data.following;
-            const followBtn = document.getElementById('followBtn');
-            if (data.username === currentUser) {
-                followBtn.style.display = 'none';
-            } else {
-                followBtn.style.display = 'block';
-                followBtn.textContent = data.is_following ? '✓ Following' : '+ Follow';
-                followBtn.className = data.is_following ? 'follow-btn following' : 'follow-btn';
-            }
-            document.getElementById('profileModal').style.display = 'block';
-        });
-
-        function closeProfile() {
-            document.getElementById('profileModal').style.display = 'none';
-            document.getElementById('editProfileSection').classList.add('hidden');
-        }
-
-        function toggleFollow() {
-            socket.emit('toggle_follow', { target: currentProfileUser });
-        }
-
-        function saveProfile() {
-            const bio = document.getElementById('editBio').value;
-            const profilePic = document.getElementById('editProfilePic').value;
-            socket.emit('update_profile', { bio, profile_pic: profilePic });
-            closeProfile();
-        }
-
-        async function requestPermissions() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                document.getElementById('bossVideo').srcObject = localStream;
-                if (isOwner) document.getElementById('streamBtn').style.display = 'inline-block';
-            } catch (err) {
-                alert('Camera/Mic permission pek a ngai');
+        async function toggleLive(){
+            if(isLive){
+                stopLive();
+            }else{
+                try{
+                    localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+                    document.getElementById('localVideo').srcObject = localStream;
+                    document.getElementById('localVideo').classList.remove('hidden');
+                    document.getElementById('videoPlaceholder').classList.add('hidden');
+                    document.getElementById('goLiveBtn').classList.add('active');
+                    isLive = true;
+                    socket.emit('go_live', {username: currentUser});
+                    showNotification('🔴 You are LIVE!');
+                }catch(err){
+                    showNotification('Camera/Mic access denied!', true);
+                }
             }
         }
 
-        function toggleStream() {
-            if (currentUser) {
-                socket.emit('go_live', { username: currentUser });
-                document.getElementById('streamBtn').style.display = 'none';
-                document.getElementById('stopStreamBtn').style.display = 'inline-block';
+        function stopLive(){
+            if(localStream){
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            Object.keys(peerConnections).forEach(peer => peerConnections.close());
+            peerConnections = {};
+            document.getElementById('localVideo').classList.add('hidden');
+            document.getElementById('remoteVideo').classList.add('hidden');
+            document.getElementById('videoPlaceholder').classList.remove('hidden');
+            document.getElementById('goLiveBtn').classList.remove('active');
+            document.getElementById('liveBadge').classList.add('hidden');
+            document.getElementById('viewerCount').classList.add('hidden');
+            document.getElementById('giftBtn').classList.add('hidden');
+            document.getElementById('leaveLiveBtn').classList.add('hidden');
+            isLive = false;
+            socket.emit('stop_live', {username: currentUser});
+        }
+
+        function leaveLive(){
+            if(currentLiveStreamer){
+                socket.emit('leave_live', {streamer: currentLiveStreamer});
+                document.getElementById('remoteVideo').classList.add('hidden');
+                document.getElementById('videoPlaceholder').classList.remove('hidden');
+                document.getElementById('giftBtn').classList.add('hidden');
+                document.getElementById('leaveLiveBtn').classList.add('hidden');
+                currentLiveStreamer = null;
             }
         }
 
-        function stopStream() {
-            if (currentUser) {
-                socket.emit('stop_live', { username: currentUser });
-                document.getElementById('streamBtn').style.display = 'inline-block';
-                document.getElementById('stopStreamBtn').style.display = 'none';
+        function createPeerConnection(peerId){
+            const pc = new RTCPeerConnection({
+                iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
+            });
+
+            pc.onicecandidate = (event) => {
+                if(event.candidate){
+                    socket.emit('webrtc_ice_candidate', {to: peerId, candidate: event.candidate});
+                }
+            };
+
+            pc.ontrack = (event) => {
+                document.getElementById('remoteVideo').srcObject = event.streams[0];
+                document.getElementById('remoteVideo').classList.remove('hidden');
+                document.getElementById('videoPlaceholder').classList.add('hidden');
+            };
+
+            if(localStream){
+                localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
             }
+
+            return pc;
         }
 
-        socket.on('live_update', (data) => {
-            if (data.username === 'BOSS' || data.username === currentUser) {
-                document.getElementById('bossLiveBadge').style.display = data.status === 'live' ? 'block' : 'none';
-            }
-        });
+        async function joinLiveStream(streamer){
+            currentLiveStreamer = streamer;
+            document.getElementById('videoPlaceholder').classList.add('hidden');
+            document.getElementById('remoteVideo').classList.remove('hidden');
+            document.getElementById('giftBtn').classList.remove('hidden');
+            document.getElementById('leaveLiveBtn').classList.remove('hidden');
+            socket.emit('join_live', {username: currentUser, streamer: streamer});
 
-        function sendChat() {
+            peerConnections[streamer] = createPeerConnection(streamer);
+            const offer = await peerConnections[streamer].createOffer();
+            await peerConnections[streamer].setLocalDescription(offer);
+            socket.emit('webrtc_offer', {to: streamer, offer: offer, from: currentUser});
+        }
+
+        function updateLiveList(){
+            socket.emit('connect');
+        }
+
+        function renderLiveList(data){
+            const list = document.getElementById('liveList');
+            if(!data || data.length === 0){
+                list.innerHTML = '<div style="text-align:center;color:#aaa;padding:20px;font-size:11px">No one is live yet</div>';
+                return;
+            }
+            list.innerHTML = data.map(stream => `
+                <div class="live-item">
+                    <img src="https://i.imgur.com/8Km9tLL.png" class="live-avatar">
+                    <div style="flex:1">
+                        <div style="font-weight:bold">${stream.username}</div>
+                        <div style="font-size:9px;color:#aaa">👀 ${stream.viewers} viewers</div>
+                    </div>
+                    <button class="game-btn" style="padding:6px 12px" onclick="joinLiveStream('${stream.username}')">Join</button>
+                </div>
+            `).join('');
+        }
+
+        function toggleGiftPanel(){
+            const panel = document.getElementById('giftPanel');
+            panel.style.display = panel.style.display === 'none'? 'grid' : 'none';
+        }
+
+        function sendGift(giftType, coins){
+            const target = isLive? currentUser : currentLiveStreamer;
+            if(!target) return;
+            socket.emit('send_gift', {sender: currentUser, receiver: target, gift_type: giftType, coins: coins});
+            toggleGiftPanel();
+        }
+
+        function vote(side){
+            socket.emit('vote', {side, username: currentUser});
+        }
+
+        function sendChat(){
             const input = document.getElementById('chatInput');
             const msg = input.value.trim();
-            if (!msg) return;
-            socket.emit('send_chat', { username: currentUser, msg
+            if(msg && currentUser){
+                socket.emit('send_chat', {username: currentUser, msg, profile_pic: currentProfile?.profile_pic});
+                input.value = '';
+            }
+        }
+
+        function claimFreeCoins(){
+            socket.emit('get_free_coins', {username: currentUser});
+        }
+
+        function spinWheel(){
+            socket.emit('spin_wheel', {username: currentUser});
+        }
+
+        function coinFlip(){
+            const choice = confirm('Choose HEADS? Cancel for TAILS')? 'heads' : 'tails';
+            socket.emit('coin_flip', {username: currentUser, choice});
+        }
+
+        function luckyBox(){
+            socket.emit('lucky_box', {username: currentUser});
+        }
+
+        function numberGuess(){
+            const guess = prompt('Guess number 1-10:');
+            if(guess &&!isNaN(guess) && guess >= 1 && guess <= 10){
+                socket.emit('number_guess', {username: currentUser, guess: parseInt(guess)});
+            }
+        }
+
+                function createParty(){
+            const name = prompt('Party Room Name:');
+            if(name && name.trim()){
+                socket.emit('create_party', {username: currentUser, room_name: name.trim()});
+            }
+        }
+
+        function renderPartyRooms(data){
+            const list = document.getElementById('partyRoomsList');
+            if(!data || data.length === 0){
+                list.innerHTML = '<div style="text-align:center;color:#aaa;padding:20px;font-size:11px">No party rooms yet</div>';
+                return;
+            }
+            list.innerHTML = data.map(room => `
+                <div class="party-room-sm">
+                    <div class="party-name">🎉 ${room.room_name}</div>
+                    <div style="display:flex;justify-content:space-between;margin-top:6px">
+                        <div>👑 ${room.crown}</div>
+                        <div>👥 ${room.members.length}/10</div>
+                    </div>
+                    <button class="game-btn" style="width:100%;margin-top:8px;padding:6px" onclick="joinParty('${room.id}')">Join Party</button>
+                </div>
+            `).join('');
+        }
+
+        function joinParty(roomId){
+            socket.emit('join_party', {username: currentUser, room_id: roomId});
+        }
+
+        function renderLeaderboard(data){
+            const pointsDiv = document.getElementById('pointsRank');
+            const coinsDiv = document.getElementById('coinsRank');
+            
+            pointsDiv.innerHTML = data.points.map((user, idx) => `
+                <div class="leaderboard-item-sm">
+                    <div class="leaderboard-rank">${idx+1}</div>
+                    <img src="${user.profile_pic}" class="leaderboard-pic">
+                    <div style="flex:1">
+                        <div style="font-weight:bold">${user.username}</div>
+                        <div style="font-size:9px;color:#aaa">⭐ ${user.points} points</div>
+                    </div>
+                    <button class="game-btn" style="padding:4px 8px;font-size:9px" onclick="socket.emit('get_profile',{username:'${user.username}',requester:currentUser})">View</button>
+                </div>
+            `).join('');
+
+            coinsDiv.innerHTML = data.coins.map((user, idx) => `
+                <div class="leaderboard-item-sm">
+                    <div class="leaderboard-rank">${idx+1}</div>
+                    <img src="${user.profile_pic}" class="leaderboard-pic">
+                    <div style="flex:1">
+                        <div style="font-weight:bold">${user.username}</div>
+                        <div style="font-size:9px;color:#aaa">💰 ${user.coins} coins</div>
+                    </div>
+                    <button class="game-btn" style="padding:4px 8px;font-size:9px" onclick="socket.emit('get_profile',{username:'${user.username}',requester:currentUser})">View</button>
+                </div>
+            `).join('');
+        }
+
+        function switchRank(type){
+            if(type === 'points'){
+                document.getElementById('pointsRank').classList.remove('hidden');
+                document.getElementById('coinsRank').classList.add('hidden');
+            }else{
+                document.getElementById('pointsRank').classList.add('hidden');
+                document.getElementById('coinsRank').classList.remove('hidden');
+            }
+        }
+
+        function toggleFollow(username){
+            socket.emit('follow_user', {follower: currentUser, following: username || currentViewProfile});
+        }
+
+        function showEditProfile(){
+            const newBio = prompt('Enter new bio:', currentProfile.bio);
+            if(newBio !== null){
+                socket.emit('update_profile', {username: currentUser, bio: newBio});
+            }
+        }
+
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendChat();
+        });
+
+        setInterval(() => {
+            if(currentUser) socket.emit('get_party_rooms');
+        }, 10000);
+
+        socket.emit('get_leaderboard', {});
+    </script>
+</body>
+</html>
