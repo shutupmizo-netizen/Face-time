@@ -475,3 +475,139 @@ if __name__ == '__main__':
     init_db()
     port = int(os.environ.get('PORT', 5000))
     socketio.run(app, host='0.0.0.0', port=port, allow_unsafe_werkzeug=True)
+    from flask import Flask, render_template, request, jsonify, session, redirect
+from flask_socketio import SocketIO, emit, join_room
+import sqlite3, hashlib, secrets, time
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = secrets.token_hex(16)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+def init_db():
+    conn = sqlite3.connect('battle.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users
+                 (id INTEGER PRIMARY KEY,
+                  username TEXT UNIQUE,
+                  password TEXT,
+                  email TEXT,
+                  phone TEXT,
+                  dob TEXT,
+                  gender TEXT,
+                  security_q TEXT,
+                  security_a TEXT,
+                  score INTEGER DEFAULT 0,
+                  created_at INTEGER)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS reset_tokens
+                 (id INTEGER PRIMARY KEY, username TEXT, token TEXT, expires INTEGER)''')
+    conn.commit()
+    conn.close()
+
+init_db()
+active_users = {}
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.json
+    username = data['username']
+    password = hashlib.sha256(data['password'].encode()).hexdigest()
+    email = data.get('email', '')
+    phone = data.get('phone', '')
+    dob = data.get('dob', '')
+    gender = data.get('gender', '')
+    sec_q = data.get('security_q', '')
+    sec_a = data.get('security_a', '')
+
+    if not username or not password:
+        return jsonify({"success": False, "msg": "Username leh Password a ngai!"})
+
+    conn = sqlite3.connect('battle.db')
+    c = conn.cursor()
+    try:
+        c.execute("""INSERT INTO users
+                     (username, password, email, phone, dob, gender, security_q, security_a, created_at)
+                     VALUES (?,?,?,?,?,?,?,?,?)""",
+                  (username, password, email, phone, dob, gender, sec_q, sec_a, int(time.time())))
+        conn.commit()
+        return jsonify({"success": True, "msg": "Account siam fel! Login rawh."})
+    except sqlite3.IntegrityError:
+        return jsonify({"success": False, "msg": "Username hman sa a ni!"})
+    finally:
+        conn.close()
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data['username']
+    password = hashlib.sha256(data['password'].encode()).hexdigest()
+
+    conn = sqlite3.connect('battle.db')
+    c = conn.cursor()
+    c.execute("SELECT username, email, phone, dob, gender FROM users WHERE username=? AND password=?", (username, password))
+    user = c.fetchone()
+    conn.close()
+
+    if user:
+        session['user'] = username
+        return jsonify({
+            "success": True,
+            "username": user[0],
+            "email": user[1],
+            "phone": user[2],
+            "dob": user[3],
+            "gender": user[4]
+        })
+    return jsonify({"success": False, "msg": "Username/Password dik lo!"})
+
+@app.route('/oauth/google')
+def google_login():
+    demo_user = f"google_{secrets.token_hex(4)}"
+    session['user'] = demo_user
+    return redirect(f'/?oauth=google&user={demo_user}')
+
+@app.route('/oauth/facebook')
+def facebook_login():
+    demo_user = f"fb_{secrets.token_hex(4)}"
+    session['user'] = demo_user
+    return redirect(f'/?oauth=facebook&user={demo_user}')
+
+@app.route('/reset_request', methods=['POST'])
+def reset_request():
+    data = request.json
+    username = data['username']
+    conn = sqlite3.connect('battle.db')
+    c = conn.cursor()
+    c.execute("SELECT security_q FROM users WHERE username=?", (username,))
+    result = c.fetchone()
+    conn.close()
+    if result:
+        return jsonify({"success": True, "security_q": result[0]})
+    return jsonify({"success": False, "msg": "User hmuh loh!"})
+
+@app.route('/reset_password', methods=['POST'])
+def reset_password():
+    data = request.json
+    username = data['username']
+    answer = data['answer']
+    new_pass = hashlib.sha256(data['new_password'].encode()).hexdigest()
+
+    conn = sqlite3.connect('battle.db')
+    c = conn.cursor()
+    c.execute("SELECT security_a FROM users WHERE username=?", (username,))
+    result = c.fetchone()
+
+    if result and result[0] == answer:
+        c.execute("UPDATE users SET password=? WHERE username=?", (new_pass, username))
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "msg": "Password thlak fel!"})
+    conn.close()
+    return jsonify({"success": False, "msg": "Chhanna dik lo!"})
+
+if __name__ == '__main__':
+    print("* PK BATTLE V9.0 FULL PROFILE - Database ready ✅")
+    socketio.run(app, host='0.0.0.0', port=5000, debug=False)
