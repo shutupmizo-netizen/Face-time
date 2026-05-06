@@ -700,6 +700,287 @@
         }, 10000);
 
         socket.emit('get_leaderboard', {});
-        </script>
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 PK BATTLE V9.0 LIVE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; min-height: 100vh;
+        }
+       .login-container {
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 20px;
+        }
+       .login-box {
+            background: rgba(0,0,0,0.7); padding: 35px; border-radius: 20px;
+            backdrop-filter: blur(10px); width: 100%; max-width: 420px;
+            border: 2px solid #ff6b6b; max-height: 95vh; overflow-y: auto;
+        }
+       .login-box h1 { text-align: center; margin-bottom: 20px; font-size: 26px; }
+       .form-group { margin: 10px 0; }
+       .form-group label { display: block; margin-bottom: 5px; font-size: 14px; color: #ccc; }
+       .login-box input,.login-box select {
+            width: 100%; padding: 12px; border: none;
+            border-radius: 10px; background: rgba(255,255,255,0.1);
+            color: white; font-size: 15px;
+        }
+       .login-box input::placeholder { color: #aaa; }
+       .form-row { display: flex; gap: 10px; }
+       .form-row.form-group { flex: 1; }
+       .btn {
+            width: 100%; padding: 13px; margin: 8px 0; border: none;
+            border-radius: 10px; font-size: 15px; font-weight: bold;
+            cursor: pointer; transition: 0.3s;
+        }
+       .btn-login { background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; }
+       .btn-signup { background: linear-gradient(45deg, #00d2d3, #54a0ff); color: white; }
+       .btn-google { background: #fff; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px; }
+       .btn-facebook { background: #1877f2; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; }
+       .divider { text-align: center; margin: 15px 0; color: #ccc; font-size: 14px; }
+       .forgot { text-align: center; margin-top: 10px; }
+       .forgot a { color: #00d2d3; cursor: pointer; text-decoration: none; font-size: 14px; }
+       .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+       .modal-content { background: #1e3c72; padding: 25px; border-radius: 15px; width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto; }
+       .modal-content h2 { margin-bottom: 15px; text-align: center; }
+       .main-app { display: none; }
+       .header { background: rgba(0,0,0,0.8); padding: 15px; text-align: center; border-bottom: 2px solid #ff6b6b; }
+       .tabs { display: flex; background: rgba(0,0,0,0.6); overflow-x: auto; border-bottom: 2px solid #333; }
+       .tab { flex: 1; padding: 15px 10px; text-align: center; cursor: pointer; border-right: 1px solid #333; min-width: 80px; font-size: 14px; }
+       .tab.active { background: #ff6b6b; }
+       .content { padding: 20px; }
+       .hidden { display: none; }
+       .profile-box { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h1>🔥 PK BATTLE V9.0 LIVE</h1>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn btn-login" onclick="login()">🚀 LOGIN</button>
+
+            <div class="divider">— OR —</div>
+
+            <button class="btn btn-google" onclick="window.location='/oauth/google'">
+                <img src="https://www.google.com/favicon.ico" width="18"> Continue with Google
+            </button>
+            <button class="btn btn-facebook" onclick="window.location='/oauth/facebook'">
+                <img src="https://www.facebook.com/favicon.ico" width="18"> Continue with Facebook
+            </button>
+
+            <button class="btn btn-signup" onclick="showSignup()">📝 SIGN UP FREE</button>
+            <div class="forgot"><a onclick="showReset()">Forgot Password?</a></div>
+        </div>
+    </div>
+
+    <!-- Signup Modal KIM -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <h2>📝 Create Account</h2>
+
+            <div class="form-group">
+                <label>Username *</label>
+                <input type="text" id="newUser" placeholder="thlan tur">
+            </div>
+
+            <div class="form-group">
+                <label>Password *</label>
+                <input type="password" id="newPass" placeholder="••••••••">
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="newEmail" placeholder="example@gmail.com">
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="newPhone" placeholder="9876543210">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="newDob">
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="newGender">
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Security Question *</label>
+                <select id="secQ">
+                    <option>Your first pet name?</option>
+                    <option>Your birth city?</option>
+                    <option>Your favorite color?</option>
+                    <option>Your mother's maiden name?</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Security Answer *</label>
+                <input type="text" id="secA" placeholder="Chhanna">
+            </div>
+
+            <button class="btn btn-signup" onclick="signup()">Create Account</button>
+            <button class="btn" onclick="closeModal('signupModal')" style="background:#666;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Reset Modal -->
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <h2>🔑 Reset Password</h2>
+            <div id="resetStep1">
+                <input type="text" id="resetUser" placeholder="Username">
+                <button class="btn btn-login" onclick="getSecurityQ()">Next</button>
+            </div>
+            <div id="resetStep2" class="hidden">
+                <p id="secQDisplay" style="margin:10px 0; color:#00d2d3;"></p>
+                <input type="text" id="resetAnswer" placeholder="Your Answer">
+                <input type="password" id="resetNewPass" placeholder="New Password">
+                <button class="btn btn-login" onclick="resetPass()">Reset Password</button>
+            </div>
+            <button class="btn" onclick="closeModal('resetModal')" style="background:#666;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="mainApp" class="main-app">
+        <div class="header">
+            <h2>🔥 PK BATTLE V9.0 LIVE 🔥</h2>
+            <p>Welcome, <span id="userDisplay"></span>!</p>
+        </div>
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('live')">📹 Live</div>
+            <div class="tab" onclick="showTab('battle')">⚔️ Battle</div>
+            <div class="tab" onclick="showTab('profile')">👤 Profile</div>
+            <div class="tab" onclick="showTab('chat')">💬 Chat</div>
+        </div>
+        <div class="content">
+            <div id="liveTab" class="tab-content">
+                <h3>📹 Live Camera</h3>
+                <p>Camera feature coming soon!</p>
+            </div>
+            <div id="battleTab" class="tab-content hidden">
+                <h3>⚔️ Battle Arena</h3>
+                <p>Battle mode active! Challenge friends.</p>
+            </div>
+            <div id="profileTab" class="tab-content hidden">
+                <h3>👤 Your Profile</h3>
+                <div class="profile-box" id="profileData"></div>
+            </div>
+            <div id="chatTab" class="tab-content hidden">
+                <h3>💬 Global Chat</h3>
+                <p>Chat coming soon!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('oauth')) {
+            document.getElementById('userDisplay').textContent = urlParams.get('user');
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+        }
+
+        async function login() {
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value
+                })
+            });
+            const data = await res.json();
+            if(data.success) {
+                document.getElementById('userDisplay').textContent = data.username;
+                document.getElementById('profileData').innerHTML = `
+                    <p><strong>Username:</strong> ${data.username}</p>
+                    <p><strong>Email:</strong> ${data.email || 'Not set'}</p>
+                    <p><strong>Phone:</strong> ${data.phone || 'Not set'}</p>
+                    <p><strong>DOB:</strong> ${data.dob || 'Not set'}</p>
+                    <p><strong>Gender:</strong> ${data.gender || 'Not set'}</p>
+                `;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+            } else alert(data.msg);
+        }
+
+        function showSignup() { document.getElementById('signupModal').style.display = 'flex'; }
+        function showReset() { document.getElementById('resetModal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        async function signup() {
+            const res = await fetch('/signup', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username: document.getElementById('newUser').value,
+                    email: document.getElementById('newEmail').value,
+                    phone: document.getElementById('newPhone').value,
+                    dob: document.getElementById('newDob').value,
+                    gender: document.getElementById('newGender').value,
+                    password: document.getElementById('newPass').value,
+                    security_q: document.getElementById('secQ').value,
+                    security_a: document.getElementById('secA').value
+                })
+            });
+            const data = await res.json();
+            alert(data.msg);
+            if(data.success) closeModal('signupModal');
+        }
+
+        async function getSecurityQ() {
+            const res = await fetch('/reset_request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: document.getElementById('resetUser').value})
+            });
+            const data = await res.json();
+            if(data.success) {
+                document.getElementById('secQDisplay').textContent = data.security_q;
+                document.getElementById('resetStep1').classList.add('hidden');
+                document.getElementById('resetStep2').classList.remove('hidden');
+            } else alert(data.msg);
+        }
+
+        async function resetPass() {
+            const res = await fetch('/reset_password', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username: document.getElementById('resetUser').value,
+                    answer: document.getElementById('resetAnswer').value,
+                    new_password: document.getElementById('resetNewPass').value
+                })
+            });
+            const data = await res.json();
+            alert(data.msg);
+            if(data.success) closeModal('resetModal');
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+    </script>
 </body>
-</html>  
+</html>
